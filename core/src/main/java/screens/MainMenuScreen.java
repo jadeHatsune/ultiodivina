@@ -90,7 +90,7 @@ public class MainMenuScreen implements Screen {
     public void createButtons() {
         //Botón jugar
         Image playButton = new Image(playButtonTexture);
-        playButton.setPosition((float) Gdx.graphics.getWidth() / 2 - playButton.getWidth() / 2, 200);
+        playButton.setPosition((float) Gdx.graphics.getWidth() / 2 - playButton.getWidth() / 2, (float) Gdx.graphics.getHeight() / 2 - playButton.getHeight() / 2);
         playButton.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
            @Override
             public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
@@ -113,7 +113,7 @@ public class MainMenuScreen implements Screen {
 
         //Botón salir
         Image exitButton = new Image(exitButtonTexture);
-        exitButton.setPosition((float) Gdx.graphics.getWidth() / 2 - exitButton.getWidth() / 2, 100);
+        exitButton.setPosition((float) Gdx.graphics.getWidth() / 2 - exitButton.getWidth() / 2, playButton.getY() - playButton.getHeight() / 2);
         exitButton.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
            @Override
            public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
