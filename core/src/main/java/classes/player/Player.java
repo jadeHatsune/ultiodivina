@@ -14,13 +14,13 @@ public class Player {
 
     //--- Constants ---
     private static final float MOVE_SPEED = 200f;
-    private static final float JUMP_VELOCITY = 400f;
+    private static final float JUMP_VELOCITY = 500f;
     private static final float GRAVITY = -800f;
 
     //--- Player states ---
     private PlayerState currentState;
+    private PlayerFacing currentFacing;
     private boolean isOnGround;
-    private boolean isMoving;
 
     //--- Physics ---
     private final Rectangle bounds;
@@ -30,6 +30,9 @@ public class Player {
     //--- Animations ---
     private final Animation<TextureRegion> animationIdle;
     private final Animation<TextureRegion> animationWalking;
+    private final Animation<TextureRegion> animationJumping;
+    private final Animation<TextureRegion> animationDie;
+    private final Animation<TextureRegion> animationAttack;
     private float stateTime;
 
     //-- Properties --
@@ -45,14 +48,18 @@ public class Player {
         this.name = "Lymhiel";
         this.life = 3;
         this.damage = 1;
-        this.currentState = PlayerState.FACING_RIGHT;
+        this.currentState = PlayerState.IDLE;
+        this.currentFacing = PlayerFacing.FACING_RIGHT;
         this.shootCooldown = 0;
         this.invincibilityTimer = 0;
-        this.isMoving = false;
+        this.isOnGround = true;
         this.stateTime = 0f;
 
         animationIdle = getAnimationSprite(1, 7, "lymhiel_idle.png");
         animationWalking = getAnimationSprite(1, 6, "lymhiel_walking.png");
+        animationJumping = getAnimationSprite(1, 6, "lymhiel_jumping.png");
+        animationDie = getAnimationSprite(1, 10, "lymhiel_die.png");
+        animationAttack = getAnimationSprite(1, 6, "lymhiel_attack.png");
 
         TextureRegion firstFrame = animationIdle.getKeyFrame(0);
         this.bounds = new Rectangle(x, y, firstFrame.getRegionWidth(), firstFrame.getRegionHeight());
@@ -63,61 +70,129 @@ public class Player {
         return bounds;
     }
 
-    public void update(float delta){
+    public void update(float delta, Array<Platform> platforms){
         processInput();
 
         speedY += GRAVITY * delta;
 
-        bounds.x += speedX * delta;
-        bounds.y += speedY * delta;
+        moveX(delta, platforms);
+        moveY(delta, platforms);
 
         stateTime += delta;
-        boolean wasMoving = this.isMoving;
-        isMoving = (speedX != 0);
-        if(wasMoving != isMoving) {
-            stateTime = 0f;
+
+        if(currentState == PlayerState.ATTACKING) {
+            if(animationAttack.isAnimationFinished(stateTime)) {
+                transitionToState(PlayerState.IDLE);
+            }
+        } else if (!isOnGround) {
+            if(speedY > 0) {
+                transitionToState(PlayerState.JUMPING);
+            }else{
+                transitionToState(PlayerState.FALLING);
+            }
+        } else if (speedX != 0) {
+            transitionToState(PlayerState.WALKING);
+        } else {
+            transitionToState(PlayerState.IDLE);
         }
 
     }
 
+    public void moveX(float delta, Array<Platform> platforms) {
+        bounds.x += speedX * delta;
+
+        for(Platform platform : platforms) {
+            if(bounds.overlaps(platform.getBounds())) {
+                if(speedX > 0) {
+                    bounds.x = platform.getBounds().x - bounds.width;
+                } else if(speedX < 0) {
+                    bounds.x = platform.getBounds().x + platform.getBounds().width;
+                }
+                speedX = 0;
+                break;
+            }
+        }
+    }
+
+    public void moveY(float delta, Array<Platform> platforms) {
+        bounds.y += speedY * delta;
+
+        isOnGround = false;
+
+        for(Platform platform : platforms) {
+            if (bounds.overlaps(platform.getBounds())) {
+                if (speedY < 0) {
+                    bounds.y = platform.getBounds().y + platform.getBounds().height;
+                    speedY = 0;
+                    isOnGround = true;
+                } else if(speedY > 0) {
+                    bounds.y = platform.getBounds().y - bounds.height;
+                    speedY = 0;
+                }
+
+                break;
+            }
+        }
+    }
+
     public void processInput() {
+        if(currentState == PlayerState.ATTACKING) {
+            speedX = 0;
+            return;
+        }
+
         if(Gdx.input.isKeyPressed(Input.Keys.A)){
             speedX = -MOVE_SPEED;
-            currentState = PlayerState.FACING_LEFT;
+            currentFacing = PlayerFacing.FACING_LEFT;
         } else if(Gdx.input.isKeyPressed(Input.Keys.D)) {
             speedX = MOVE_SPEED;
-            currentState = PlayerState.FACING_RIGHT;
+            currentFacing = PlayerFacing.FACING_RIGHT;
         } else {
             speedX = 0;
         }
 
-        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && !isOnGround){
+        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && isOnGround){
             speedY = JUMP_VELOCITY;
+            this.isOnGround = false;
+        }
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
+            transitionToState(PlayerState.ATTACKING);
         }
 
     }
 
-    public void applyPhysics(Platform groundPlatform, Array<Platform> platformsAereo) {
-
-        this.isOnGround = false;
-
-        if(this.getBounds().overlaps(groundPlatform.getBounds())) {
-            handlePlatformCollision(groundPlatform.getBounds());
+    public void transitionToState(PlayerState newState) {
+        if(this.currentState != newState) {
+            this.currentState = newState;
+            this.stateTime = 0f;
         }
-
-    }
-
-    public void handlePlatformCollision(Rectangle platformBounds) {
-
     }
 
     public void draw(Batch batch){
-        Animation<TextureRegion> currentAnimation = isMoving ? animationWalking : animationIdle;
-        TextureRegion currentFrame = currentAnimation.getKeyFrame(stateTime, true);
+        Animation<TextureRegion> currentAnimation;
+        switch (currentState) {
+            case WALKING:
+                currentAnimation = animationWalking;
+                break;
+            case JUMPING:
+            case FALLING:
+                currentAnimation = animationJumping;
+                break;
+            case ATTACKING:
+                currentAnimation = animationAttack;
+                break;
+            case IDLE:
+            default:
+                currentAnimation = animationIdle;
+                break;
+        }
 
-        if(currentState == PlayerState.FACING_LEFT && !currentFrame.isFlipX()) {
+        TextureRegion currentFrame = currentAnimation.getKeyFrame(stateTime, currentState != PlayerState.ATTACKING);
+
+        if(currentFacing == PlayerFacing.FACING_LEFT && !currentFrame.isFlipX()) {
             currentFrame.flip(true, false);
-        } else if(currentState == PlayerState.FACING_RIGHT && currentFrame.isFlipX()) {
+        } else if(currentFacing == PlayerFacing.FACING_RIGHT && currentFrame.isFlipX()) {
             currentFrame.flip(true, false);
         }
 

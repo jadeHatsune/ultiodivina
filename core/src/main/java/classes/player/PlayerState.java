@@ -1,6 +1,9 @@
 package classes.player;
 
 public enum PlayerState {
-    FACING_RIGHT,
-    FACING_LEFT
+    IDLE,
+    WALKING,
+    JUMPING,
+    FALLING,
+    ATTACKING
 }

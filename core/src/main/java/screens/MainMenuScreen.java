@@ -46,10 +46,10 @@ public class MainMenuScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        playButtonTexture = new Texture(Gdx.files.internal("botonJugar200.png"));
-        exitButtonTexture = new Texture(Gdx.files.internal("botonSalir200.png"));
-        playButtonTextureHover = new Texture(Gdx.files.internal("botonJugar2-200.png"));
-        exitButtonTextureHover = new Texture(Gdx.files.internal("botonsalir2-200.png"));
+        playButtonTexture = new Texture(Gdx.files.internal("botonJugar.png"));
+        exitButtonTexture = new Texture(Gdx.files.internal("botonsalir.png"));
+        playButtonTextureHover = new Texture(Gdx.files.internal("botonJugar2.png"));
+        exitButtonTextureHover = new Texture(Gdx.files.internal("botonsalir2.png"));
 
         playButtonNormalDrawable = new TextureRegionDrawable(new TextureRegion(playButtonTexture));
         playButtonHoverDrawable = new TextureRegionDrawable(new TextureRegion(playButtonTextureHover));
@@ -113,7 +113,7 @@ public class MainMenuScreen implements Screen {
 
         //Botón salir
         Image exitButton = new Image(exitButtonTexture);
-        exitButton.setPosition((float) Gdx.graphics.getWidth() / 2 - exitButton.getWidth() / 2, playButton.getY() - playButton.getHeight() / 2);
+        exitButton.setPosition((float) Gdx.graphics.getWidth() / 2 - exitButton.getWidth() / 2, playButton.getY() - playButton.getHeight() - 20);
         exitButton.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
            @Override
            public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
