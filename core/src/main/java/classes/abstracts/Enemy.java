@@ -1,11 +1,13 @@
 package classes.abstracts;
 
+import classes.platforms.Platform;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.Array;
 
 public abstract class Enemy {
 
@@ -14,16 +16,22 @@ public abstract class Enemy {
     protected float speedX;
     protected float speedY;
 
+    //--- Properties ---
+    protected int life;
 
-    public Enemy(int x, int y) {
 
+    public Enemy(int x, int y, int life) {
+        this.life = life;
     }
 
-    public abstract void update();
+    //--- Getters ---
+    public Rectangle getBounds() { return this.bounds; }
 
-    public abstract void moveX();
+    public abstract void update(float delta, Array<Platform> platforms);
 
-    public abstract void moveY();
+    public abstract void moveX(float delta, Array<Platform> platforms);
+
+    public abstract void moveY(float delta, Array<Platform> platforms);
 
     public abstract void processMovement();
 

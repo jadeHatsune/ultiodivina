@@ -19,12 +19,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
-import org.w3c.dom.Text;
 import screens.GameOverScreen;
 
 import java.util.Iterator;
 
-public class Level_1_1_Screen implements Screen {
+public class Level_1_2_Screen implements Screen {
 
     //-- Constants --
     private static final int PLATFORM_HEIGHT = 64;
@@ -57,7 +56,7 @@ public class Level_1_1_Screen implements Screen {
     private float hudAnimationStateTime = 0f;
     private InputHandler inputHandler;
 
-    public Level_1_1_Screen(Game game){
+    public Level_1_2_Screen(Game game){
         this.game = game;
     }
 

@@ -5,5 +5,6 @@ public enum PlayerState {
     WALKING,
     JUMPING,
     FALLING,
-    ATTACKING
+    ATTACKING,
+    DIE,
 }

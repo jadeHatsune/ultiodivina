@@ -1,16 +1,8 @@
-package screens;
+package screens.levels;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
 
-public class GameOverScreen implements Screen {
-
-    private final Game game;
-
-    public GameOverScreen(Game game) {
-        this.game = game;
-    }
-
+public class Level_1_3_Screen implements Screen {
     @Override
     public void show() {
 

@@ -1,6 +1,7 @@
 package classes.player;
 
 import classes.platforms.Platform;
+import classes.projectiles.Projectile;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
@@ -39,8 +40,10 @@ public class Player {
     private final String name;
     private int life;
     private int damage;
+    private boolean projectileSpawnedInThisAttack;
+    private boolean shouldSpawnProjectile;
 
-    private int shootCooldown;
+    private int attackCooldown;
     private int invincibilityTimer;
     private final int INVINCIBILITY_DURATION = 120;
 
@@ -50,10 +53,13 @@ public class Player {
         this.damage = 1;
         this.currentState = PlayerState.IDLE;
         this.currentFacing = PlayerFacing.FACING_RIGHT;
-        this.shootCooldown = 0;
+        this.attackCooldown = 0;
         this.invincibilityTimer = 0;
         this.isOnGround = true;
         this.stateTime = 0f;
+
+        this.projectileSpawnedInThisAttack = false;
+        this.shouldSpawnProjectile = false;
 
         animationIdle = getAnimationSprite(1, 7, "lymhiel_idle.png");
         animationWalking = getAnimationSprite(1, 6, "lymhiel_walking.png");
@@ -66,12 +72,46 @@ public class Player {
 
     }
 
-    public Rectangle getBounds() {
-        return bounds;
+    //--- Getters ---
+    public Rectangle getBounds() { return this.bounds; }
+
+    public int getLife() { return this.life; }
+
+    public boolean isDeathAnimationFinished() {
+        return currentState == PlayerState.DIE && animationDie.isAnimationFinished(stateTime);
     }
 
-    public void update(float delta, Array<Platform> platforms){
-        processInput();
+    public boolean shouldSpawnProjectile() {
+        return this.shouldSpawnProjectile;
+    }
+
+    public PlayerFacing getCurrentFacing() {
+        return this.currentFacing;
+    }
+
+    public void takeDamage(int dmg){
+        if (invincibilityTimer > 0) {
+            return;
+        }
+        this.life -= dmg;
+        this.invincibilityTimer = INVINCIBILITY_DURATION;
+    }
+
+    public void update(float delta, Array<Platform> platforms) {
+        if(currentState == PlayerState.DIE) {
+            stateTime += delta;
+            return;
+        }
+
+        if(invincibilityTimer > 0) {
+            invincibilityTimer--;
+        }
+
+        if(currentState == PlayerState.ATTACKING){
+            stopMovingX();
+        }
+
+        shouldSpawnProjectile = false;
 
         speedY += GRAVITY * delta;
 
@@ -80,25 +120,39 @@ public class Player {
 
         stateTime += delta;
 
-        if(currentState == PlayerState.ATTACKING) {
-            if(animationAttack.isAnimationFinished(stateTime)) {
+        if(life > 0) {
+            if(currentState == PlayerState.ATTACKING) {
+                if(animationAttack.isAnimationFinished(stateTime)) {
+                    transitionToState(PlayerState.IDLE);
+                } else {
+                    int spawnFrame = 5;
+                    if(!projectileSpawnedInThisAttack && animationAttack.getKeyFrameIndex(stateTime) >= spawnFrame) {
+                        shouldSpawnProjectile = true;
+                        projectileSpawnedInThisAttack = true;
+                    }
+                }
+            } else if (!isOnGround) {
+                if(speedY > 0) {
+                    transitionToState(PlayerState.JUMPING);
+                }else{
+                    transitionToState(PlayerState.FALLING);
+                }
+            } else if (speedX != 0) {
+                transitionToState(PlayerState.WALKING);
+            } else {
                 transitionToState(PlayerState.IDLE);
             }
-        } else if (!isOnGround) {
-            if(speedY > 0) {
-                transitionToState(PlayerState.JUMPING);
-            }else{
-                transitionToState(PlayerState.FALLING);
-            }
-        } else if (speedX != 0) {
-            transitionToState(PlayerState.WALKING);
         } else {
-            transitionToState(PlayerState.IDLE);
+            transitionToState(PlayerState.DIE);
         }
 
     }
 
     public void moveX(float delta, Array<Platform> platforms) {
+        if (currentState == PlayerState.DIE) {
+            speedX = 0;
+            return;
+        }
         bounds.x += speedX * delta;
 
         for(Platform platform : platforms) {
@@ -111,6 +165,16 @@ public class Player {
                 speedX = 0;
                 break;
             }
+        }
+
+        if(bounds.x < 0) {
+            this.bounds.x = 0;
+            this.speedX *= -1;
+        }
+
+        if (bounds.x + bounds.width > Gdx.graphics.getWidth()) {
+            this.bounds.x = Gdx.graphics.getWidth() - bounds.width;
+            this.speedX *= -1;
         }
     }
 
@@ -135,31 +199,32 @@ public class Player {
         }
     }
 
-    public void processInput() {
-        if(currentState == PlayerState.ATTACKING) {
-            speedX = 0;
-            return;
-        }
+    public void moveLeft() {
+        speedX = -MOVE_SPEED;
+        currentFacing = PlayerFacing.FACING_LEFT;
+    }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.A)){
-            speedX = -MOVE_SPEED;
-            currentFacing = PlayerFacing.FACING_LEFT;
-        } else if(Gdx.input.isKeyPressed(Input.Keys.D)) {
-            speedX = MOVE_SPEED;
-            currentFacing = PlayerFacing.FACING_RIGHT;
-        } else {
-            speedX = 0;
-        }
+    public void moveRight() {
+        speedX = MOVE_SPEED;
+        currentFacing = PlayerFacing.FACING_RIGHT;
+    }
 
-        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && isOnGround){
+    public void stopMovingX() {
+        speedX = 0;
+    }
+
+    public void jump() {
+        if (isOnGround) {
             speedY = JUMP_VELOCITY;
-            this.isOnGround = false;
+            isOnGround = false;
         }
+    }
 
-        if(Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
+    public void attack() {
+        if(currentState != PlayerState.ATTACKING) {
             transitionToState(PlayerState.ATTACKING);
+            projectileSpawnedInThisAttack = false;
         }
-
     }
 
     public void transitionToState(PlayerState newState) {
@@ -170,25 +235,11 @@ public class Player {
     }
 
     public void draw(Batch batch){
-        Animation<TextureRegion> currentAnimation;
-        switch (currentState) {
-            case WALKING:
-                currentAnimation = animationWalking;
-                break;
-            case JUMPING:
-            case FALLING:
-                currentAnimation = animationJumping;
-                break;
-            case ATTACKING:
-                currentAnimation = animationAttack;
-                break;
-            case IDLE:
-            default:
-                currentAnimation = animationIdle;
-                break;
-        }
+        Animation<TextureRegion> currentAnimation = chooseAnimation();
 
-        TextureRegion currentFrame = currentAnimation.getKeyFrame(stateTime, currentState != PlayerState.ATTACKING);
+        boolean isLooping = (currentState != PlayerState.ATTACKING) && (currentState != PlayerState.DIE);
+
+        TextureRegion currentFrame = currentAnimation.getKeyFrame(stateTime, isLooping);
 
         if(currentFacing == PlayerFacing.FACING_LEFT && !currentFrame.isFlipX()) {
             currentFrame.flip(true, false);
@@ -196,7 +247,34 @@ public class Player {
             currentFrame.flip(true, false);
         }
 
-        batch.draw(currentFrame, bounds.x, bounds.y, bounds.width, bounds.height);
+        boolean shouldDraw = true;
+
+        if (invincibilityTimer > 0 && currentState != PlayerState.DIE) {
+            if(invincibilityTimer % 8 < 4) {
+                shouldDraw = false;
+            }
+        }
+        if(shouldDraw) {
+            batch.draw(currentFrame, bounds.x, bounds.y, bounds.width, bounds.height);
+        }
+
+    }
+
+    public Animation<TextureRegion> chooseAnimation() {
+        switch (currentState) {
+            case WALKING:
+                return animationWalking;
+            case JUMPING:
+            case FALLING:
+                return animationJumping;
+            case ATTACKING:
+                return animationAttack;
+            case DIE:
+                return animationDie;
+            case IDLE:
+            default:
+                return animationIdle;
+        }
     }
 
     public Animation<TextureRegion> getAnimationSprite(int frameCols, int frameRows, String spriteSheetPath) {
