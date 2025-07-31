@@ -40,6 +40,7 @@ public class Player {
     private final String name;
     private int life;
     private int damage;
+    private int score;
     private boolean projectileSpawnedInThisAttack;
     private boolean shouldSpawnProjectile;
 
@@ -61,15 +62,20 @@ public class Player {
         this.projectileSpawnedInThisAttack = false;
         this.shouldSpawnProjectile = false;
 
-        animationIdle = getAnimationSprite(1, 7, "lymhiel_idle.png");
-        animationWalking = getAnimationSprite(1, 6, "lymhiel_walking.png");
-        animationJumping = getAnimationSprite(1, 6, "lymhiel_jumping.png");
-        animationDie = getAnimationSprite(1, 10, "lymhiel_die.png");
-        animationAttack = getAnimationSprite(1, 6, "lymhiel_attack.png");
+        animationIdle = getAnimationSprite(1, 7, "lymhiel/lymhiel_idle.png");
+        animationWalking = getAnimationSprite(1, 6, "lymhiel/lymhiel_walking.png");
+        animationJumping = getAnimationSprite(1, 6, "lymhiel/lymhiel_jumping.png");
+        animationDie = getAnimationSprite(1, 10, "lymhiel/lymhiel_die.png");
+        animationAttack = getAnimationSprite(1, 6, "lymhiel/lymhiel_attack.png");
 
         TextureRegion firstFrame = animationIdle.getKeyFrame(0);
         this.bounds = new Rectangle(x, y, firstFrame.getRegionWidth(), firstFrame.getRegionHeight());
 
+    }
+
+    //--- Setters ---
+    public void setScore(int score) {
+        this.score += score;
     }
 
     //--- Getters ---
@@ -88,6 +94,8 @@ public class Player {
     public PlayerFacing getCurrentFacing() {
         return this.currentFacing;
     }
+
+    public int getScore() { return this.score; }
 
     public void takeDamage(int dmg){
         if (invincibilityTimer > 0) {

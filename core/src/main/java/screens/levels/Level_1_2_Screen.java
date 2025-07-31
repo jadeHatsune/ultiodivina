@@ -188,7 +188,7 @@ public class Level_1_2_Screen implements Screen {
     public void setupEnemies(){
         this.slimes = new Array<>();
         for(Platform platform : platformsArray) {
-            slimes.add(new Slime((int) (platform.getBounds().getX() + platform.getBounds().getWidth() - SLIME_WIDTH), (int) platform.getBounds().getY() + PLATFORM_HEIGHT, 3));
+            slimes.add(new Slime((int) (platform.getBounds().getX() + platform.getBounds().getWidth() - SLIME_WIDTH), (int) platform.getBounds().getY() + PLATFORM_HEIGHT));
         }
     }
 

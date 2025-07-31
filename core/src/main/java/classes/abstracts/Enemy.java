@@ -18,14 +18,17 @@ public abstract class Enemy {
 
     //--- Properties ---
     protected int life;
+    protected int givenScore;
 
 
-    public Enemy(int x, int y, int life) {
+    public Enemy(int x, int y, int life, int givenScore) {
         this.life = life;
+        this.givenScore = givenScore;
     }
 
     //--- Getters ---
     public Rectangle getBounds() { return this.bounds; }
+    public int getGivenScore() { return this.givenScore; }
 
     public abstract void update(float delta, Array<Platform> platforms);
 

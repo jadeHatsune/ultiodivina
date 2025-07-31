@@ -41,15 +41,15 @@ public class MainMenuScreen implements Screen {
     public void show(){
         batch = new SpriteBatch();
         font = new BitmapFont();
-        backgroundTexture = new Texture(Gdx.files.internal("mainMenuBackground.png"));
+        backgroundTexture = new Texture(Gdx.files.internal("backgrounds/mainMenuBackground.png"));
 
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        playButtonTexture = new Texture(Gdx.files.internal("botonJugar.png"));
-        exitButtonTexture = new Texture(Gdx.files.internal("botonsalir.png"));
-        playButtonTextureHover = new Texture(Gdx.files.internal("botonJugar2.png"));
-        exitButtonTextureHover = new Texture(Gdx.files.internal("botonsalir2.png"));
+        playButtonTexture = new Texture(Gdx.files.internal("buttons/botonJugar.png"));
+        exitButtonTexture = new Texture(Gdx.files.internal("buttons/botonsalir.png"));
+        playButtonTextureHover = new Texture(Gdx.files.internal("buttons/botonJugar2.png"));
+        exitButtonTextureHover = new Texture(Gdx.files.internal("buttons/botonsalir2.png"));
 
         playButtonNormalDrawable = new TextureRegionDrawable(new TextureRegion(playButtonTexture));
         playButtonHoverDrawable = new TextureRegionDrawable(new TextureRegion(playButtonTextureHover));

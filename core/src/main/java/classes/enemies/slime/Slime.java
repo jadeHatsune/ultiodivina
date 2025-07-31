@@ -34,8 +34,8 @@ public class Slime extends Enemy {
     private boolean isTakingDamage;
     private float damageColorTimer;
 
-    public Slime(int x, int y, int life) {
-        super(x, y, life);
+    public Slime(int x, int y) {
+        super(x, y, 3, 10);
 
         currentState = SlimeState.IDLE;
         stateTime = 0f;
@@ -43,7 +43,7 @@ public class Slime extends Enemy {
         random = new Random();
         isTakingDamage = false;
 
-        this.animationWalking = getAnimationSprite(1, 7, "slime.png");
+        this.animationWalking = getAnimationSprite(1, 7, "enemies/slime/slime.png");
         this.animationIdle = animationWalking.getKeyFrame(0);
 
         this.bounds = new Rectangle(x, y, animationIdle.getRegionWidth(), animationIdle.getRegionHeight());
