@@ -1,6 +1,8 @@
 package classes.enemies.slime;
 
-import classes.abstracts.Enemy;
+import classes.enemies.Enemy;
+import classes.enemies.EnemyFacing;
+import classes.enemies.EnemyState;
 import classes.platforms.Platform;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -19,11 +21,8 @@ public class Slime extends Enemy {
     private static final float MOVE_SPEED = 100f;
     private static final float GRAVITY = -800f;
     private static final int DAMAGE = 1;
-    private static final float DAMAGE_COLOR_DURATION = 0.2f;
 
     //--- Slime states ---
-    private SlimeState currentState;
-    private SlimeFacing currentFacing;
     private int actionTimer;
     private final Random random;
 
@@ -31,33 +30,21 @@ public class Slime extends Enemy {
     private final Animation<TextureRegion> animationWalking;
     private final TextureRegion animationIdle;
     private float stateTime;
-    private boolean isTakingDamage;
-    private float damageColorTimer;
 
     public Slime(int x, int y) {
         super(x, y, 3, 10);
 
-        currentState = SlimeState.IDLE;
         stateTime = 0f;
         actionTimer = 60;
         random = new Random();
         isTakingDamage = false;
+        this.damage = DAMAGE;
 
         this.animationWalking = getAnimationSprite(1, 7, "enemies/slime/slime.png");
         this.animationIdle = animationWalking.getKeyFrame(0);
 
         this.bounds = new Rectangle(x, y, animationIdle.getRegionWidth(), animationIdle.getRegionHeight());
 
-    }
-
-    //--- GETTERS ---
-    public int makeDamage() { return DAMAGE; }
-    public SlimeState getCurrentState() { return this.currentState; }
-
-    public void takeDamage(int dmg) {
-        this.life -= dmg;
-        isTakingDamage = true;
-        damageColorTimer = DAMAGE_COLOR_DURATION;
     }
 
     @Override
@@ -75,9 +62,9 @@ public class Slime extends Enemy {
         }
 
         if(speedX != 0) {
-            transitionToState(SlimeState.WALKING);
+            transitionToState(EnemyState.WALKING);
         } else {
-            transitionToState(SlimeState.IDLE);
+            transitionToState(EnemyState.IDLE);
         }
 
         speedY += GRAVITY * delta;
@@ -87,7 +74,7 @@ public class Slime extends Enemy {
         stateTime += delta;
 
         if(life <= 0) {
-            transitionToState(SlimeState.DIE);
+            transitionToState(EnemyState.DIE);
         }
 
     }
@@ -110,7 +97,7 @@ public class Slime extends Enemy {
             // Si no hay suelo delante, invierte la dirección
             if (!groundAhead) {
                 speedX *= -1;
-                currentFacing = (currentFacing == SlimeFacing.FACING_LEFT) ? SlimeFacing.FACING_RIGHT : SlimeFacing.FACING_LEFT;
+                currentFacing = (currentFacing == EnemyFacing.FACING_LEFT) ? EnemyFacing.FACING_RIGHT : EnemyFacing.FACING_LEFT;
             }
         }
 
@@ -155,17 +142,17 @@ public class Slime extends Enemy {
                 break;
             case 1:
                 this.speedX = -MOVE_SPEED;
-                currentFacing = SlimeFacing.FACING_LEFT;
+                currentFacing = EnemyFacing.FACING_LEFT;
                 break;
             case 2:
                 this.speedX = MOVE_SPEED;
-                currentFacing = SlimeFacing.FACING_RIGHT;
+                currentFacing = EnemyFacing.FACING_RIGHT;
                 break;
         }
         this.actionTimer = random.nextInt(180) + 60;
     }
 
-    public void transitionToState(SlimeState newState) {
+    public void transitionToState(EnemyState newState) {
         if(this.currentState != newState) {
             this.currentState = newState;
             this.stateTime = 0f;
@@ -190,9 +177,9 @@ public class Slime extends Enemy {
                 break;
         }
 
-        if(currentFacing == SlimeFacing.FACING_LEFT && !currentFrame.isFlipX()) {
+        if(currentFacing == EnemyFacing.FACING_LEFT && !currentFrame.isFlipX()) {
             currentFrame.flip(true, false);
-        } else if(currentFacing == SlimeFacing.FACING_RIGHT && currentFrame.isFlipX()) {
+        } else if(currentFacing == EnemyFacing.FACING_RIGHT && currentFrame.isFlipX()) {
             currentFrame.flip(true, false);
         }
 

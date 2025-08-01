@@ -85,6 +85,7 @@ public class Player {
     public void setScore(int score) {
         this.score += score;
     }
+    public void restartScore(){ this.score = 0; }
 
     //--- Getters ---
     public Rectangle getBounds() { return this.bounds; }

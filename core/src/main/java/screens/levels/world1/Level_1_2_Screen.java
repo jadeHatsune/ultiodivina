@@ -1,8 +1,8 @@
-package screens.levels;
+package screens.levels.world1;
 
 import classes.InputHandler;
 import classes.enemies.slime.Slime;
-import classes.enemies.slime.SlimeState;
+import classes.enemies.EnemyState;
 import classes.platforms.Platform;
 import classes.player.Player;
 import classes.player.PlayerFacing;
@@ -220,7 +220,7 @@ public class Level_1_2_Screen implements Screen {
         //--- Limpieza de Slimes ---
         for (Iterator<Slime> iter = slimes.iterator(); iter.hasNext(); ) {
             Slime slime = iter.next();
-            if (slime.getCurrentState() == SlimeState.DIE) {
+            if (slime.getCurrentState() == EnemyState.DIE) {
                 iter.remove();
             }
         }

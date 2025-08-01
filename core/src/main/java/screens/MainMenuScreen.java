@@ -10,7 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import screens.levels.Level_1_1_Screen;
+import screens.levels.world1.Level_1_1_Screen;
 
 public class MainMenuScreen extends BaseScreen {
 

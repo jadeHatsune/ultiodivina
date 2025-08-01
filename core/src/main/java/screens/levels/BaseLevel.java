@@ -1,9 +1,10 @@
 package screens.levels;
 
 import classes.InputHandler;
+import classes.enemies.Enemy;
 import classes.effects.FloatingScore;
+import classes.enemies.EnemyState;
 import classes.enemies.slime.Slime;
-import classes.enemies.slime.SlimeState;
 import classes.platforms.Platform;
 import classes.player.Player;
 import classes.player.PlayerFacing;
@@ -17,7 +18,10 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
@@ -28,60 +32,63 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.hod.ultiodivina.Main;
 import screens.BaseScreen;
 import screens.GameOverScreen;
 import screens.MainMenuScreen;
+import screens.levels.world1.Level_1_1_Screen;
 
 import java.util.Iterator;
 
-public class Level_1_1_Screen extends BaseScreen {
+public abstract class BaseLevel extends BaseScreen {
 
     //-- Constants --
-    private static final int PLATFORM_HEIGHT = 64;
-    private static final int AERIAL_PLATFORM_WIDTH = 200;
-    private static final int AERIAL_LONG_PLATFORM_WIDTH = 300;
-    private static final int GROUND_PLATFORM_DIF_Y = 15;
-    private static final int AERIAL_PLATFORM_DIF_Y = 31;
-    private static final int VERTICAL_SPACING = 130;
-    private static final int SLIME_WIDTH = 61;
-    private static final int SPAWN_POINT = 64;
+    protected static final int PLATFORM_HEIGHT = 64;
+    protected static final int AERIAL_PLATFORM_WIDTH = 200;
+    protected static final int AERIAL_LONG_PLATFORM_WIDTH = 300;
+    protected static final int GROUND_PLATFORM_DIF_Y = 15;
+    protected static final int AERIAL_PLATFORM_DIF_Y = 31;
+    protected static final int VERTICAL_SPACING = 130;
+    protected static final int SLIME_WIDTH = 61;
 
     //--- Sounds ---
-    private Sound buttonsSound;
-    private Sound projectileSound;
+    protected Sound buttonsSound;
+    protected Sound projectileSound;
 
     //--- GameStates
-    private GameState currentState;
-    private Texture backgroundTexture;
+    protected GameState currentState;
+    protected Texture backgroundTexture;
 
     //--- Pause UI ---
-    private Table pauseTable;
-    private Texture continueButtonTexture;
-    private Texture continueButtonHoverTexture;
-    private Texture restartButtonTexture;
-    private Texture restartButtonHoverTexture;
-    private Texture returnMenuButtonTexture;
-    private Texture returnMenuButtonHoverTexture;
+    protected Table pauseTable;
+    protected Texture continueButtonTexture;
+    protected Texture continueButtonHoverTexture;
+    protected Texture restartButtonTexture;
+    protected Texture restartButtonHoverTexture;
+    protected Texture returnMenuButtonTexture;
+    protected Texture returnMenuButtonHoverTexture;
 
     //--- Entities ---
-    private Player player;
-    private Array<Slime> slimes;
-    private Array<Projectile> projectiles;
-    private Array<FloatingScore> floatingScores;
+    protected Player player;
+    protected int spawnPointX;
+    protected int spawnPointY;
+    protected Array<Projectile> projectiles;
+    protected Array<Enemy> enemies;
+    protected Array<FloatingScore> floatingScores;
 
     //--- Platforms ---
-    private Array<Platform> platformsArray;
+    protected Array<Platform> platforms;
 
     //--- HUD ---
-    private OrthographicCamera hudCamera;
-    private Array<Texture> lifeSprites;
-    private Animation<TextureRegion> animationLifeEnds;
-    private float hudAnimationStateTime = 0f;
-    private InputHandler inputHandler;
-    private final GlyphLayout glyphLayout = new GlyphLayout();
-    private int displayScore;
+    protected OrthographicCamera hudCamera;
+    protected Array<Texture> lifeSprites;
+    protected Animation<TextureRegion> animationLifeEnds;
+    protected float hudAnimationStateTime = 0f;
+    protected InputHandler inputHandler;
+    protected final GlyphLayout glyphLayout = new GlyphLayout();
+    protected int displayScore;
 
-    public Level_1_1_Screen(Game game){
+    public BaseLevel(Game game){
         super(game);
     }
 
@@ -89,23 +96,13 @@ public class Level_1_1_Screen extends BaseScreen {
     public void show(){
         super.show();
 
-        buttonsSound = Gdx.audio.newSound(Gdx.files.internal("sounds/effects/efectoBotones.ogg"));
-        projectileSound = Gdx.audio.newSound(Gdx.files.internal("sounds/effects/efectoProyectil.ogg"));
-
-        this.floatingScores = new Array<>();
-        this.backgroundTexture = new Texture(Gdx.files.internal("backgrounds/level1/nivel1-1.jpeg"));
         this.currentState = GameState.RUNNING;
 
-        this.displayScore = 0;
+        //--- SOUNDS CONFIGURATION ---
+        this.buttonsSound = Gdx.audio.newSound(Gdx.files.internal("sounds/effects/efectoBotones.ogg"));
+        this.projectileSound = Gdx.audio.newSound(Gdx.files.internal("sounds/effects/efectoProyectil.ogg"));
 
-        hudCamera = new OrthographicCamera();
-        hudCamera.setToOrtho(false, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
-
-        setupPlatforms();
-        setupPlayer();
-        setupEnemies();
-
-        //--- PAUSE UI TEXTURES ---
+        //--- PAUSE UI CONFIGURATION ---
         continueButtonTexture = new Texture(Gdx.files.internal("buttons/botonContinuar.png"));
         continueButtonHoverTexture = new Texture(Gdx.files.internal("buttons/botonContinuar2.png"));
         restartButtonTexture = new Texture(Gdx.files.internal("buttons/botonReintentar.png"));
@@ -114,20 +111,28 @@ public class Level_1_1_Screen extends BaseScreen {
         returnMenuButtonHoverTexture = new Texture(Gdx.files.internal("buttons/botonVolver2.png"));
 
         //--- HUD CONFIGURATION ---
+        this.lifeSprites = new Array<>();
+        this.floatingScores = new Array<>();
+        hudCamera = new OrthographicCamera();
+        hudCamera.setToOrtho(false, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+        this.displayScore = 0;
         animationLifeEnds = getAnimationSprite(1, 10, "hud/caliz0Vidas.png");
-        lifeSprites = new Array<>();
-
         lifeSprites.add(new Texture("hud/caliz1Vidas.png"));
         lifeSprites.add(new Texture("hud/caliz2Vidas.png"));
         lifeSprites.add(new Texture("hud/caliz3Vidas.png"));
 
         //--- PAUSE UI CONFIGURATION ---
         createPauseTable();
+        setupLevelArrays();
+        setupLevelPlatforms();
+        setupLevelEnemies();
+        setupPlayer();
     }
 
     @Override
     public void render(float delta){
         super.render(delta);
+
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             togglePause();
         }
@@ -141,20 +146,131 @@ public class Level_1_1_Screen extends BaseScreen {
         //--- Dibujado de juego ---
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-
         batch.draw(backgroundTexture, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+        drawEntities(batch);
+        //--- Dibujado de HUD ---
+        drawHUD(batch, delta);
+        batch.end();
+
+        stage.act(delta);
+        stage.draw();
+    }
+
+    @Override
+    public void dispose(){
+        super.dispose();
+        this.backgroundTexture.dispose();
+        for (Texture t : lifeSprites) {
+            t.dispose();
+        }
+    }
+
+    public abstract void setupLevelPlatforms();
+
+    public abstract void setupLevelEnemies();
+
+    public void handleCollisions(){
+        for(Enemy enemy : enemies) {
+            if(player.getBounds().overlaps(enemy.getBounds())) {
+                player.takeDamage(enemy.makeDamage());
+            }
+        }
+
+        for(Projectile projectile : projectiles) {
+            for(Enemy enemy : enemies) {
+                if(projectile.getBounds().overlaps(enemy.getBounds())) {
+                    enemy.takeDamage(1);
+                    projectile.setCurrentState(ProjectileState.DEACTIVATE);
+                    break;
+                }
+            }
+        }
+    }
+
+   public abstract void setupPlayer();
+
+    public void setupLevelArrays(){
+        this.platforms = new Array<>();
+        this.enemies = new Array<>();
+        this.projectiles = new Array<>();
+    }
+
+    public void cleanupEntities(){
+        //--- Limpieza de Proyectiles ---
+        for (Iterator<Projectile> iter = projectiles.iterator(); iter.hasNext(); ) {
+            Projectile projectile = iter.next();
+            if (projectile.getCurrentState() == ProjectileState.DEACTIVATE) {
+                iter.remove();
+            }
+        }
+        //--- Limpieza de Enemigos ---
+        for (Iterator<Enemy> iter = enemies.iterator(); iter.hasNext(); ) {
+            Enemy enemy = iter.next();
+            if (enemy.getCurrentState() == EnemyState.DIE) {
+                player.setScore(enemy.getGivenScore());
+                String scoreText = "+" + enemy.getGivenScore();
+                floatingScores.add(new FloatingScore(scoreText, enemy.getBounds().x, enemy.getBounds().y + enemy.getBounds().height));
+                iter.remove();
+            }
+        }
+    }
+
+    public void updateEntities(float delta){
+        inputHandler.update();
+        player.update(delta, platforms);
+
+        if(player.shouldSpawnProjectile()) {
+            float projectileSpeed = 500f;
+            float startX = player.getCurrentFacing() == PlayerFacing.FACING_RIGHT ? player.getBounds().x + player.getBounds().width : player.getBounds().x;
+            float startY = player.getBounds().y + (player.getBounds().height / 3);
+
+            if(player.getCurrentFacing() == PlayerFacing.FACING_LEFT) {
+                projectileSpeed = -500f;
+            }
+            projectileSound.play(0.5f);
+            projectiles.add(new Projectile((int) startX, (int) startY, projectileSpeed, "lymhiel/lymhiel_projectile.png"));
+        }
+
+        if(player.isDeathAnimationFinished()) { game.setScreen(new GameOverScreen(game)); }
+
+        for(Projectile projectile : projectiles) {
+            projectile.update(delta);
+        }
+
+        for(Enemy enemy : enemies) {
+            enemy.update(delta, platforms);
+        }
+
+        for (Iterator<FloatingScore> iter = floatingScores.iterator(); iter.hasNext(); ) {
+            FloatingScore score = iter.next();
+            score.update(delta);
+            if (score.isFinished()) {
+                iter.remove();
+            }
+        }
+
+        if (displayScore < player.getScore()) {
+            displayScore ++;
+        }
+
+        handleCollisions();
+        cleanupEntities();
+    }
+
+    public void drawEntities(Batch batch){
         player.draw(batch);
-        for(Platform platform : platformsArray) {
+        for(Platform platform : platforms) {
             platform.draw(batch);
+        }
+        for(Enemy enemy : enemies){
+            enemy.draw(batch);
         }
         for(Projectile projectile : projectiles) {
             projectile.draw(batch);
         }
-        for(Slime slime : slimes){
-            slime.draw(batch);
-        }
+    }
 
-        //--- Dibujado de HUD ---
+    public void drawHUD(Batch batch, float delta){
         batch.setProjectionMatrix(hudCamera.combined);
 
         int currentLife = player.getLife();
@@ -175,134 +291,6 @@ public class Level_1_1_Screen extends BaseScreen {
         for (FloatingScore score : floatingScores) {
             score.draw(batch, font);
         }
-
-        batch.end();
-
-        stage.act(delta);
-        stage.draw();
-
-    }
-
-    @Override
-    public void dispose(){
-        super.dispose();
-        this.backgroundTexture.dispose();
-        for (Texture t : lifeSprites) {
-            t.dispose();
-        }
-    }
-
-    public void setupPlatforms() {
-        this.platformsArray = new Array<>();
-        String platformGroundPath = "platforms/plataformaTierra.png";
-        String platformAirLeftPath = "platforms/plataformaAereoIzquierda.png";
-        String platformAirRightPath = "platforms/plataformaAereoDerecha.png";
-        String platformAirLongPath = "platforms/plataformaAereoLarga.png";
-
-        platformsArray.add(new Platform(0, 0, VIRTUAL_WIDTH, 0, GROUND_PLATFORM_DIF_Y, platformGroundPath));
-        float currentY = VERTICAL_SPACING;
-        platformsArray.add(new Platform(0, (int) currentY, 0, 0, AERIAL_PLATFORM_DIF_Y, platformAirLongPath));
-        platformsArray.add(new Platform(VIRTUAL_WIDTH - AERIAL_LONG_PLATFORM_WIDTH, (int) currentY, 0, 0, AERIAL_PLATFORM_DIF_Y, platformAirLongPath));
-        currentY += VERTICAL_SPACING;
-        platformsArray.add(new Platform(0, (int) currentY, 0, 0, AERIAL_PLATFORM_DIF_Y, platformAirLeftPath));
-        platformsArray.add(new Platform(VIRTUAL_WIDTH - AERIAL_PLATFORM_WIDTH, (int) currentY, 0, 0, AERIAL_PLATFORM_DIF_Y, platformAirRightPath));
-        currentY += VERTICAL_SPACING;
-        platformsArray.add(new Platform((VIRTUAL_WIDTH / 2) - (AERIAL_LONG_PLATFORM_WIDTH / 2), (int) currentY, 0, 0, AERIAL_PLATFORM_DIF_Y, platformAirLongPath));
-
-
-    }
-
-    public void setupEnemies(){
-        this.slimes = new Array<>();
-        for(Platform platform : platformsArray) {
-            slimes.add(new Slime((int) (platform.getBounds().getX() + platform.getBounds().getWidth() - SLIME_WIDTH), (int) platform.getBounds().getY() + PLATFORM_HEIGHT));
-        }
-    }
-
-    public void setupPlayer() {
-        this.player = new Player(SPAWN_POINT, PLATFORM_HEIGHT);
-        this.projectiles = new Array<>();
-        this.inputHandler = new InputHandler(this.player);
-    }
-
-    public void handleCollisions(){
-        for(Slime slime : slimes) {
-            if(player.getBounds().overlaps(slime.getBounds())) {
-                player.takeDamage(slime.makeDamage());
-            }
-        }
-
-        for(Projectile projectile : projectiles) {
-            for(Slime slime : slimes) {
-                if(projectile.getBounds().overlaps(slime.getBounds())) {
-                    slime.takeDamage(1);
-                    projectile.setCurrentState(ProjectileState.DEACTIVATE);
-                    break;
-                }
-            }
-        }
-    }
-
-    public void cleanupEntities(){
-        //--- Limpieza de Slimes ---
-        for (Iterator<Slime> iter = slimes.iterator(); iter.hasNext(); ) {
-            Slime slime = iter.next();
-            if (slime.getCurrentState() == SlimeState.DIE) {
-                player.setScore(slime.getGivenScore());
-                String scoreText = "+" + slime.getGivenScore();
-                floatingScores.add(new FloatingScore(scoreText, slime.getBounds().x, slime.getBounds().y + slime.getBounds().height));
-                iter.remove();
-            }
-        }
-
-        //--- Limpieza de Proyectiles ---
-        for (Iterator<Projectile> iter = projectiles.iterator(); iter.hasNext(); ) {
-            Projectile projectile = iter.next();
-            if (projectile.getCurrentState() == ProjectileState.DEACTIVATE) {
-                iter.remove();
-            }
-        }
-    }
-
-    public void updateEntities(float delta) {
-        inputHandler.update();
-        player.update(delta, platformsArray);
-
-        if(player.shouldSpawnProjectile()) {
-            float projectileSpeed = 500f;
-            float startX = player.getCurrentFacing() == PlayerFacing.FACING_RIGHT ? player.getBounds().x + player.getBounds().width : player.getBounds().x;
-            float startY = player.getBounds().y + (player.getBounds().height / 3);
-
-            if(player.getCurrentFacing() == PlayerFacing.FACING_LEFT) {
-                projectileSpeed = -500f;
-            }
-            projectileSound.play(0.5f);
-            projectiles.add(new Projectile((int) startX, (int) startY, projectileSpeed, "lymhiel/lymhiel_projectile.png"));
-        }
-
-        if(player.isDeathAnimationFinished()) { game.setScreen(new GameOverScreen(game)); }
-
-        for(Projectile projectile : projectiles) {
-            projectile.update(delta);
-        }
-        for(Slime slime : slimes) {
-            slime.update(delta, platformsArray);
-        }
-
-        handleCollisions();
-        cleanupEntities();
-
-        for (Iterator<FloatingScore> iter = floatingScores.iterator(); iter.hasNext(); ) {
-            FloatingScore score = iter.next();
-            score.update(delta);
-            if (score.isFinished()) {
-                iter.remove();
-            }
-        }
-
-        if (displayScore < player.getScore()) {
-            displayScore ++;
-        }
     }
 
     public void createPauseTable() {
@@ -321,47 +309,19 @@ public class Level_1_1_Screen extends BaseScreen {
         Button.ButtonStyle continueStyle = new Button.ButtonStyle();
         continueStyle.up = new TextureRegionDrawable(continueButtonTexture);
         continueStyle.over = new TextureRegionDrawable(continueButtonHoverTexture);
-        Button continueButton = getButton(continueStyle);
+        Button continueButton = getContinueButton(continueStyle);
 
         //--- Restart Button ---
         Button.ButtonStyle restartStyle = new Button.ButtonStyle();
         restartStyle.up = new TextureRegionDrawable(restartButtonTexture);
         restartStyle.over = new TextureRegionDrawable(restartButtonHoverTexture);
-        Button restartButton = new Button(restartStyle);
-
-        restartButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent changeEvent, Actor actor) {
-                buttonsSound.play(0.5f);
-                SequenceAction sequenceAction = new SequenceAction();
-                sequenceAction.addAction(Actions.delay(0.3f));
-                sequenceAction.addAction(Actions.run(() -> {
-                    game.setScreen(new Level_1_1_Screen(game));
-                    dispose();
-                }));
-                stage.addAction(sequenceAction);
-            }
-        });
+        Button restartButton = getRestartButton(restartStyle);
 
         //--- Return Main Manu Button ---
         Button.ButtonStyle returnStyle = new Button.ButtonStyle();
         returnStyle.up = new TextureRegionDrawable(returnMenuButtonTexture);
         returnStyle.over = new TextureRegionDrawable(returnMenuButtonHoverTexture);
-        Button returnButton = new Button(returnStyle);
-
-        returnButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent changeEvent, Actor actor) {
-                buttonsSound.play(0.5f);
-                SequenceAction sequenceAction = new SequenceAction();
-                sequenceAction.addAction(Actions.delay(0.3f));
-                sequenceAction.addAction(Actions.run(() -> {
-                    game.setScreen(new MainMenuScreen(game));
-                    dispose();
-                }));
-                stage.addAction(sequenceAction);
-            }
-        });
+        Button returnButton = getReturnButton(returnStyle);
 
         //--- Add Buttons to the table ---
         pauseTable.add(pauseLabel).padBottom(40).row();
@@ -375,7 +335,7 @@ public class Level_1_1_Screen extends BaseScreen {
 
     }
 
-    private Button getButton(Button.ButtonStyle continueStyle) {
+    private Button getContinueButton(Button.ButtonStyle continueStyle) {
         Button continueButton = new Button(continueStyle);
 
         continueButton.addListener(new ChangeListener() {
@@ -390,6 +350,42 @@ public class Level_1_1_Screen extends BaseScreen {
             }
         });
         return continueButton;
+    }
+
+    private Button getReturnButton(Button.ButtonStyle returnStyle) {
+        Button returnButton = new Button(returnStyle);
+
+        returnButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent changeEvent, Actor actor) {
+                buttonsSound.play(0.5f);
+                SequenceAction sequenceAction = new SequenceAction();
+                sequenceAction.addAction(Actions.delay(0.3f));
+                sequenceAction.addAction(Actions.run(() -> {
+                    game.setScreen(new MainMenuScreen(game));
+                }));
+                stage.addAction(sequenceAction);
+            }
+        });
+        return returnButton;
+    }
+
+    private Button getRestartButton(Button.ButtonStyle restartStyle) {
+        Button restartButton = new Button(restartStyle);
+
+        restartButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent changeEvent, Actor actor) {
+                buttonsSound.play(0.5f);
+                SequenceAction sequenceAction = new SequenceAction();
+                sequenceAction.addAction(Actions.delay(0.3f));
+                sequenceAction.addAction(Actions.run(() -> {
+                    game.setScreen(new Level_1_1_Screen(game));
+                }));
+                stage.addAction(sequenceAction);
+            }
+        });
+        return restartButton;
     }
 
     public void togglePause() {

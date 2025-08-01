@@ -1,4 +1,4 @@
-package screens.levels;
+package screens.levels.world1;
 
 import com.badlogic.gdx.Screen;
 
