@@ -12,15 +12,15 @@ import classes.projectiles.ProjectileState;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -28,13 +28,13 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import screens.BaseScreen;
 import screens.GameOverScreen;
 import screens.MainMenuScreen;
 
 import java.util.Iterator;
 
-public class Level_1_1_Screen implements Screen {
+public class Level_1_1_Screen extends BaseScreen {
 
     //-- Constants --
     private static final int PLATFORM_HEIGHT = 64;
@@ -46,15 +46,15 @@ public class Level_1_1_Screen implements Screen {
     private static final int SLIME_WIDTH = 61;
     private static final int SPAWN_POINT = 64;
 
+    //--- Sounds ---
+    private Sound buttonsSound;
+    private Sound projectileSound;
+
     //--- GameStates
-    private final Game game;
-    private SpriteBatch batch;
-    private Texture backgroundTexture;
-    private BitmapFont font;
     private GameState currentState;
+    private Texture backgroundTexture;
 
     //--- Pause UI ---
-    private Stage uiStage;
     private Table pauseTable;
     private Texture continueButtonTexture;
     private Texture continueButtonHoverTexture;
@@ -73,7 +73,6 @@ public class Level_1_1_Screen implements Screen {
     private Array<Platform> platformsArray;
 
     //--- HUD ---
-    private OrthographicCamera gameCamera;
     private OrthographicCamera hudCamera;
     private Array<Texture> lifeSprites;
     private Animation<TextureRegion> animationLifeEnds;
@@ -83,30 +82,24 @@ public class Level_1_1_Screen implements Screen {
     private int displayScore;
 
     public Level_1_1_Screen(Game game){
-        this.game = game;
+        super(game);
     }
 
     @Override
     public void show(){
+        super.show();
+
+        buttonsSound = Gdx.audio.newSound(Gdx.files.internal("sounds/effects/efectoBotones.ogg"));
+        projectileSound = Gdx.audio.newSound(Gdx.files.internal("sounds/effects/efectoProyectil.ogg"));
+
         this.floatingScores = new Array<>();
-        this.batch = new SpriteBatch();
         this.backgroundTexture = new Texture(Gdx.files.internal("backgrounds/level1/nivel1-1.jpeg"));
         this.currentState = GameState.RUNNING;
 
         this.displayScore = 0;
 
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/AngelFortune.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 24;
-        parameter.color = Color.WHITE;
-        this.font = generator.generateFont(parameter);
-        generator.dispose();
-
-        gameCamera = new OrthographicCamera();
-        gameCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
         hudCamera = new OrthographicCamera();
-        hudCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        hudCamera.setToOrtho(false, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 
         setupPlatforms();
         setupPlayer();
@@ -129,14 +122,12 @@ public class Level_1_1_Screen implements Screen {
         lifeSprites.add(new Texture("hud/caliz3Vidas.png"));
 
         //--- PAUSE UI CONFIGURATION ---
-        uiStage = new Stage(new ScreenViewport());
         createPauseTable();
-        Gdx.input.setInputProcessor(uiStage);
     }
 
     @Override
     public void render(float delta){
-
+        super.render(delta);
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             togglePause();
         }
@@ -148,10 +139,10 @@ public class Level_1_1_Screen implements Screen {
         ScreenUtils.clear(0, 0, 0, 1);
 
         //--- Dibujado de juego ---
-        batch.setProjectionMatrix(gameCamera.combined);
+        batch.setProjectionMatrix(camera.combined);
         batch.begin();
 
-        batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        batch.draw(backgroundTexture, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
         player.draw(batch);
         for(Platform platform : platformsArray) {
             platform.draw(batch);
@@ -163,25 +154,22 @@ public class Level_1_1_Screen implements Screen {
             slime.draw(batch);
         }
 
-        batch.end();
-
         //--- Dibujado de HUD ---
         batch.setProjectionMatrix(hudCamera.combined);
-        batch.begin();
 
         int currentLife = player.getLife();
         if (currentLife > 0) {
             Texture lifeSprite = lifeSprites.get(currentLife - 1);
-            batch.draw(lifeSprite, 10, Gdx.graphics.getHeight() - lifeSprite.getHeight() - 10);
+            batch.draw(lifeSprite, 10, VIRTUAL_HEIGHT - lifeSprite.getHeight() - 10);
         } else {
             hudAnimationStateTime += delta;
             TextureRegion currentFrame = animationLifeEnds.getKeyFrame(hudAnimationStateTime, false);
-            batch.draw(currentFrame, 10, Gdx.graphics.getHeight() - currentFrame.getRegionHeight() - 10);
+            batch.draw(currentFrame, 10, VIRTUAL_HEIGHT - currentFrame.getRegionHeight() - 10);
         }
 
         glyphLayout.setText(font, "Puntuación: " + displayScore);
-        float textX = (Gdx.graphics.getWidth() - glyphLayout.width) / 2;
-        float textY = (Gdx.graphics.getHeight()) * 0.95f;
+        float textX = (VIRTUAL_WIDTH - glyphLayout.width) / 2;
+        float textY = (VIRTUAL_HEIGHT) * 0.95f;
         font.draw(batch, glyphLayout, textX, textY);
 
         for (FloatingScore score : floatingScores) {
@@ -190,25 +178,19 @@ public class Level_1_1_Screen implements Screen {
 
         batch.end();
 
-        uiStage.act(delta);
-        uiStage.draw();
+        stage.act(delta);
+        stage.draw();
 
     }
 
     @Override
     public void dispose(){
-        this.batch.dispose();
-        this.font.dispose();
+        super.dispose();
         this.backgroundTexture.dispose();
         for (Texture t : lifeSprites) {
             t.dispose();
         }
     }
-
-    @Override public void resize(int width, int height) {}
-    @Override public void pause() {}
-    @Override public void resume() {}
-    @Override public void hide() {}
 
     public void setupPlatforms() {
         this.platformsArray = new Array<>();
@@ -217,15 +199,15 @@ public class Level_1_1_Screen implements Screen {
         String platformAirRightPath = "platforms/plataformaAereoDerecha.png";
         String platformAirLongPath = "platforms/plataformaAereoLarga.png";
 
-        platformsArray.add(new Platform(0, 0, Gdx.graphics.getWidth(), 0, GROUND_PLATFORM_DIF_Y, platformGroundPath));
+        platformsArray.add(new Platform(0, 0, VIRTUAL_WIDTH, 0, GROUND_PLATFORM_DIF_Y, platformGroundPath));
         float currentY = VERTICAL_SPACING;
         platformsArray.add(new Platform(0, (int) currentY, 0, 0, AERIAL_PLATFORM_DIF_Y, platformAirLongPath));
-        platformsArray.add(new Platform(Gdx.graphics.getWidth() - AERIAL_LONG_PLATFORM_WIDTH, (int) currentY, 0, 0, AERIAL_PLATFORM_DIF_Y, platformAirLongPath));
+        platformsArray.add(new Platform(VIRTUAL_WIDTH - AERIAL_LONG_PLATFORM_WIDTH, (int) currentY, 0, 0, AERIAL_PLATFORM_DIF_Y, platformAirLongPath));
         currentY += VERTICAL_SPACING;
         platformsArray.add(new Platform(0, (int) currentY, 0, 0, AERIAL_PLATFORM_DIF_Y, platformAirLeftPath));
-        platformsArray.add(new Platform(Gdx.graphics.getWidth() - AERIAL_PLATFORM_WIDTH, (int) currentY, 0, 0, AERIAL_PLATFORM_DIF_Y, platformAirRightPath));
+        platformsArray.add(new Platform(VIRTUAL_WIDTH - AERIAL_PLATFORM_WIDTH, (int) currentY, 0, 0, AERIAL_PLATFORM_DIF_Y, platformAirRightPath));
         currentY += VERTICAL_SPACING;
-        platformsArray.add(new Platform((Gdx.graphics.getWidth() / 2) - (AERIAL_LONG_PLATFORM_WIDTH / 2), (int) currentY, 0, 0, AERIAL_PLATFORM_DIF_Y, platformAirLongPath));
+        platformsArray.add(new Platform((VIRTUAL_WIDTH / 2) - (AERIAL_LONG_PLATFORM_WIDTH / 2), (int) currentY, 0, 0, AERIAL_PLATFORM_DIF_Y, platformAirLongPath));
 
 
     }
@@ -294,7 +276,7 @@ public class Level_1_1_Screen implements Screen {
             if(player.getCurrentFacing() == PlayerFacing.FACING_LEFT) {
                 projectileSpeed = -500f;
             }
-
+            projectileSound.play(0.5f);
             projectiles.add(new Projectile((int) startX, (int) startY, projectileSpeed, "lymhiel/lymhiel_projectile.png"));
         }
 
@@ -339,15 +321,7 @@ public class Level_1_1_Screen implements Screen {
         Button.ButtonStyle continueStyle = new Button.ButtonStyle();
         continueStyle.up = new TextureRegionDrawable(continueButtonTexture);
         continueStyle.over = new TextureRegionDrawable(continueButtonHoverTexture);
-        Button continueButton = new Button(continueStyle);
-
-        continueButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent changeEvent, Actor actor) {
-                //--- Toggle Pause ---
-                togglePause();
-            }
-        });
+        Button continueButton = getButton(continueStyle);
 
         //--- Restart Button ---
         Button.ButtonStyle restartStyle = new Button.ButtonStyle();
@@ -358,8 +332,14 @@ public class Level_1_1_Screen implements Screen {
         restartButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent changeEvent, Actor actor) {
-                game.setScreen(new Level_1_1_Screen(game));
-                dispose();
+                buttonsSound.play(0.5f);
+                SequenceAction sequenceAction = new SequenceAction();
+                sequenceAction.addAction(Actions.delay(0.3f));
+                sequenceAction.addAction(Actions.run(() -> {
+                    game.setScreen(new Level_1_1_Screen(game));
+                    dispose();
+                }));
+                stage.addAction(sequenceAction);
             }
         });
 
@@ -372,8 +352,14 @@ public class Level_1_1_Screen implements Screen {
         returnButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent changeEvent, Actor actor) {
-                game.setScreen(new MainMenuScreen(game));
-                dispose();
+                buttonsSound.play(0.5f);
+                SequenceAction sequenceAction = new SequenceAction();
+                sequenceAction.addAction(Actions.delay(0.3f));
+                sequenceAction.addAction(Actions.run(() -> {
+                    game.setScreen(new MainMenuScreen(game));
+                    dispose();
+                }));
+                stage.addAction(sequenceAction);
             }
         });
 
@@ -385,8 +371,25 @@ public class Level_1_1_Screen implements Screen {
 
         pauseTable.setVisible(false);
 
-        uiStage.addActor(pauseTable);
+        stage.addActor(pauseTable);
 
+    }
+
+    private Button getButton(Button.ButtonStyle continueStyle) {
+        Button continueButton = new Button(continueStyle);
+
+        continueButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent changeEvent, Actor actor) {
+                //--- Toggle Pause ---
+                buttonsSound.play(0.5f);
+                SequenceAction sequenceAction = new SequenceAction();
+                sequenceAction.addAction(Actions.delay(0.3f));
+                sequenceAction.addAction(Actions.run(() -> togglePause()));
+                stage.addAction(sequenceAction);
+            }
+        });
+        return continueButton;
     }
 
     public void togglePause() {

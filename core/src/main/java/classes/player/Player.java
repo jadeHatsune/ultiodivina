@@ -4,6 +4,7 @@ import classes.platforms.Platform;
 import classes.projectiles.Projectile;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -17,6 +18,10 @@ public class Player {
     private static final float MOVE_SPEED = 200f;
     private static final float JUMP_VELOCITY = 500f;
     private static final float GRAVITY = -800f;
+
+    //--- Sounds ---
+    private Sound playerDamageSound;
+    private Sound jumpSound;
 
     //--- Player states ---
     private PlayerState currentState;
@@ -58,6 +63,9 @@ public class Player {
         this.invincibilityTimer = 0;
         this.isOnGround = true;
         this.stateTime = 0f;
+
+        playerDamageSound = Gdx.audio.newSound(Gdx.files.internal("sounds/effects/efectoDamagePlayer.ogg"));
+        jumpSound = Gdx.audio.newSound(Gdx.files.internal("sounds/effects/efectoSaltar.ogg"));
 
         this.projectileSpawnedInThisAttack = false;
         this.shouldSpawnProjectile = false;
@@ -101,6 +109,7 @@ public class Player {
         if (invincibilityTimer > 0) {
             return;
         }
+        playerDamageSound.play(0.5f);
         this.life -= dmg;
         this.invincibilityTimer = INVINCIBILITY_DURATION;
     }
@@ -223,6 +232,7 @@ public class Player {
 
     public void jump() {
         if (isOnGround) {
+            jumpSound.play(0.5f);
             speedY = JUMP_VELOCITY;
             isOnGround = false;
         }
