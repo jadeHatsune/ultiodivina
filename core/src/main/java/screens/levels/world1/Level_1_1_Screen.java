@@ -3,18 +3,17 @@ package screens.levels.world1;
 import classes.InputHandler;
 import classes.enemies.slime.Slime;
 import classes.platforms.Platform;
+import classes.platforms.PlatformAerial;
+import classes.platforms.PlatformGround;
+import classes.player.PlayerState;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Texture;
 import com.hod.ultiodivina.Main;
+import screens.VictoryScreen;
 import screens.levels.BaseLevel;
-import screens.levels.GameState;
 
 public class Level_1_1_Screen extends BaseLevel {
-
-    //--- LEVEL MUSIC ---
-    private Music levelMusic;
 
     public Level_1_1_Screen(Game game){
         super(game);
@@ -26,53 +25,47 @@ public class Level_1_1_Screen extends BaseLevel {
 
         //--- LEVEL CONFIGURATION ---
         this.player.restartScore();
+        this.player.restartLife();
+        this.player.setPlayerState(PlayerState.IDLE);
         this.spawnPointX = 64;
         this.spawnPointY = PLATFORM_HEIGHT;
         this.backgroundTexture = new Texture(Gdx.files.internal("backgrounds/level1/nivel1-1.jpeg"));
-        this.levelMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/music/level1Song.ogg"));
-        this.levelMusic.setLooping(true);
-        this.levelMusic.setVolume(0.5f);
-        this.levelMusic.play();
+        this.backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/music/level1Song.ogg"));
+        this.backgroundMusic.setLooping(true);
+        this.backgroundMusic.setVolume(0.5f);
+        this.backgroundMusic.play();
     }
 
     @Override
     public void render(float delta){
         super.render(delta);
-        if(currentState == GameState.PAUSED){
-            levelMusic.setVolume(0.2f);
-        } else {
-            levelMusic.setVolume(0.5f);
+        if(enemies.isEmpty()){
+            game.setScreen(new VictoryScreen(game, new Level_1_2_Screen(game)));
         }
     }
 
     @Override
     public void dispose(){
         super.dispose();
-        levelMusic.dispose();
     }
 
     @Override
     public void hide(){
-        levelMusic.stop();
+        super.hide();
     }
 
     @Override
     public void setupLevelPlatforms() {
-        String platformGroundPath = "platforms/plataformaTierra.png";
-        String platformAirLeftPath = "platforms/plataformaAereoIzquierda.png";
-        String platformAirRightPath = "platforms/plataformaAereoDerecha.png";
-        String platformAirLongPath = "platforms/plataformaAereoLarga.png";
 
-        platforms.add(new Platform(0, 0, VIRTUAL_WIDTH, 0, GROUND_PLATFORM_DIF_Y, platformGroundPath));
+        platforms.add(new PlatformGround(0, 0));
         float currentY = VERTICAL_SPACING;
-        platforms.add(new Platform(0, (int) currentY, 0, 0, AERIAL_PLATFORM_DIF_Y, platformAirLongPath));
-        platforms.add(new Platform(VIRTUAL_WIDTH - AERIAL_LONG_PLATFORM_WIDTH, (int) currentY, 0, 0, AERIAL_PLATFORM_DIF_Y, platformAirLongPath));
+        platforms.add(new PlatformAerial(0, (int) currentY, "large"));
+        platforms.add(new PlatformAerial(VIRTUAL_WIDTH - AERIAL_LONG_PLATFORM_WIDTH, (int) currentY, "large"));
         currentY += VERTICAL_SPACING;
-        platforms.add(new Platform(0, (int) currentY, 0, 0, AERIAL_PLATFORM_DIF_Y, platformAirLeftPath));
-        platforms.add(new Platform(VIRTUAL_WIDTH - AERIAL_PLATFORM_WIDTH, (int) currentY, 0, 0, AERIAL_PLATFORM_DIF_Y, platformAirRightPath));
+        platforms.add(new PlatformAerial(0, (int) currentY, "left"));
+        platforms.add(new PlatformAerial(VIRTUAL_WIDTH - AERIAL_PLATFORM_WIDTH, (int) currentY, "right"));
         currentY += VERTICAL_SPACING;
-        platforms.add(new Platform((VIRTUAL_WIDTH / 2) - (AERIAL_LONG_PLATFORM_WIDTH / 2), (int) currentY, 0, 0, AERIAL_PLATFORM_DIF_Y, platformAirLongPath));
-
+        platforms.add(new PlatformAerial((VIRTUAL_WIDTH / 2) - (AERIAL_LONG_PLATFORM_WIDTH / 2), (int) currentY, "large"));
 
     }
 

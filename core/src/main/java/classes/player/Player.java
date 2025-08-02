@@ -86,6 +86,8 @@ public class Player {
         this.score += score;
     }
     public void restartScore(){ this.score = 0; }
+    public void restartLife(){ this.life = 3; }
+    public void setPlayerState(PlayerState newState){ this.currentState = newState; }
 
     //--- Getters ---
     public Rectangle getBounds() { return this.bounds; }

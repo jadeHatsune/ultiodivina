@@ -14,38 +14,41 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.ScreenUtils;
-import screens.levels.world1.Level_1_1_Screen;
+import screens.levels.BaseLevel;
 
-public class GameOverScreen extends BaseScreen {
+public class VictoryScreen extends BaseScreen {
 
-    private Texture buttonRestartTexture;
-    private Texture buttonRestartHoverTexture;
+    private Texture buttonContinueTexture;
+    private Texture buttonContinueHoverTexture;
     private Texture buttonReturnTexture;
     private Texture buttonReturnHoverTexture;
 
-    public GameOverScreen(Game game) {
+    private final BaseLevel nextLevel;
+
+    public VictoryScreen(Game game, BaseLevel nextLevel) {
         super(game);
+
+        this.nextLevel = nextLevel;
     }
 
     @Override
-    public void show(){
+    public void show() {
         super.show();
 
-        this.backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/music/gameOverSong.ogg"));
-        this.backgroundMusic.setLooping(true);
+        this.backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/music/victorySong.ogg"));
+        this.backgroundMusic.setLooping(false);
         this.backgroundMusic.setVolume(0.5f);
         this.backgroundMusic.play();
 
-        this.buttonRestartTexture = new Texture(Gdx.files.internal("buttons/botonReintentar.png"));
-        this.buttonRestartHoverTexture = new Texture(Gdx.files.internal("buttons/botonReintentar2.png"));
+        this.buttonContinueTexture = new Texture(Gdx.files.internal("buttons/botonContinuar.png"));
+        this.buttonContinueHoverTexture = new Texture(Gdx.files.internal("buttons/botonContinuar2.png"));
         this.buttonReturnTexture = new Texture(Gdx.files.internal("buttons/botonVolver.png"));
         this.buttonReturnHoverTexture = new Texture(Gdx.files.internal("buttons/botonVolver2.png"));
-
-        createGameOverTable();
+        createVictoryTable();
     }
 
     @Override
-    public void render(float delta){
+    public void render(float delta) {
         super.render(delta);
         ScreenUtils.clear(0, 0, 0, 1);
         stage.act(delta);
@@ -55,64 +58,63 @@ public class GameOverScreen extends BaseScreen {
     @Override
     public void dispose(){
         super.dispose();
-        buttonRestartTexture.dispose();
-        buttonRestartHoverTexture.dispose();
+        buttonContinueTexture.dispose();
+        buttonContinueHoverTexture.dispose();
         buttonReturnTexture.dispose();
         buttonReturnHoverTexture.dispose();
     }
 
     @Override
-    public void hide(){
+    public void hide() {
         super.hide();
     }
 
-    public void createGameOverTable() {
-        Table gameOverTable = new Table();
-        gameOverTable.setFillParent(true);
+    public void createVictoryTable() {
+        Table victoryTable = new Table();
+        victoryTable.setFillParent(true);
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixmap.setColor(new Color(0,0,0, 0.7f));
         pixmap.fill();
-        gameOverTable.setBackground(new TextureRegionDrawable(new Texture(pixmap)));
+        victoryTable.setBackground(new TextureRegionDrawable(new Texture(pixmap)));
         pixmap.dispose();
 
-        Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.WHITE);
-        Label gameOverLabel = new Label("Fin del juego", labelStyle);
+        Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.GREEN);
+        Label gameOverLabel = new Label("Victoria", labelStyle);
 
-        Button.ButtonStyle restartStyle = new Button.ButtonStyle();
-        restartStyle.up = new TextureRegionDrawable(buttonRestartTexture);
-        restartStyle.over = new TextureRegionDrawable(buttonRestartHoverTexture);
-        Button restartButton = getRestartButton(restartStyle);
+        Button.ButtonStyle continueStyle = new Button.ButtonStyle();
+        continueStyle.up = new TextureRegionDrawable(buttonContinueTexture);
+        continueStyle.over = new TextureRegionDrawable(buttonContinueHoverTexture);
+        Button restartButton = getContinueButton(continueStyle);
 
         Button.ButtonStyle returnStyle = new Button.ButtonStyle();
         returnStyle.up = new TextureRegionDrawable(buttonReturnTexture);
         returnStyle.over = new TextureRegionDrawable(buttonReturnHoverTexture);
         Button returnButton = getReturnButton(returnStyle);
 
-        gameOverTable.add(gameOverLabel).padBottom(40).row();
-        gameOverTable.add(restartButton).padBottom(10).row();
-        gameOverTable.add(returnButton).padBottom(10).row();
+        victoryTable.add(gameOverLabel).padBottom(40).row();
+        victoryTable.add(restartButton).padBottom(10).row();
+        victoryTable.add(returnButton).padBottom(10).row();
 
-        gameOverTable.setVisible(true);
+        victoryTable.setVisible(true);
 
-        stage.addActor(gameOverTable);
+        stage.addActor(victoryTable);
     }
 
-    public Button getRestartButton(Button.ButtonStyle restartStyle){
-        Button restartButton = new Button(restartStyle);
-        restartButton.addListener(new ChangeListener() {
+    private Button getContinueButton(Button.ButtonStyle continueStyle) {
+        Button continueButton = new Button(continueStyle);
+
+        continueButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent changeEvent, Actor actor) {
+                //--- Toggle Pause ---
                 buttonSound.play(0.5f);
                 SequenceAction sequenceAction = new SequenceAction();
                 sequenceAction.addAction(Actions.delay(0.3f));
-                sequenceAction.addAction(Actions.run(() ->
-                    game.setScreen(new Level_1_1_Screen(game))));
-
+                sequenceAction.addAction(Actions.run(() -> game.setScreen(nextLevel)));
                 stage.addAction(sequenceAction);
             }
         });
-
-        return restartButton;
+        return continueButton;
     }
 
     private Button getReturnButton(Button.ButtonStyle returnStyle) {

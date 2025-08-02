@@ -2,8 +2,6 @@ package screens;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
@@ -25,8 +23,7 @@ public class MainMenuScreen extends BaseScreen {
     private TextureRegionDrawable exitButtonNormalDrawable;
     private TextureRegionDrawable exitButtonHoverDrawable;
 
-    private Music backgroundMusic;
-    private Sound buttonSound;
+
 
     public MainMenuScreen(Game game){
         super(game);
@@ -40,8 +37,6 @@ public class MainMenuScreen extends BaseScreen {
         backgroundMusic.setLooping(true);
         backgroundMusic.setVolume(0.5f);
         backgroundMusic.play();
-
-        buttonSound = Gdx.audio.newSound(Gdx.files.internal("sounds/effects/efectoBotones.ogg"));
 
         backgroundTexture = new Texture(Gdx.files.internal("backgrounds/mainMenuBackground.png"));
 
@@ -77,14 +72,11 @@ public class MainMenuScreen extends BaseScreen {
         playButtonTextureHover.dispose();
         exitButtonTexture.dispose();
         exitButtonTextureHover.dispose();
-        backgroundMusic.dispose();
-        buttonSound.dispose();
     }
 
     @Override
     public void hide() {
         super.hide();
-        backgroundMusic.stop();
     }
 
     public void createButtons() {

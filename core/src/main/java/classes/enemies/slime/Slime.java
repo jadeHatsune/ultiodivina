@@ -32,7 +32,7 @@ public class Slime extends Enemy {
     private float stateTime;
 
     public Slime(int x, int y) {
-        super(x, y, 3, 10);
+        super(3, 10);
 
         stateTime = 0f;
         actionTimer = 60;

@@ -3,6 +3,8 @@ package screens;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -27,6 +29,10 @@ public abstract class BaseScreen implements Screen {
     protected final SpriteBatch batch;
     protected final Stage stage;
 
+    //--- MUSIC AND SOUNDS ---
+    protected Music backgroundMusic;
+    protected Sound buttonSound;
+
     public BaseScreen(Game game) {
         this.game = game;
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/AngelFortune.ttf"));
@@ -35,6 +41,8 @@ public abstract class BaseScreen implements Screen {
         parameter.color = Color.WHITE;
         this.font = generator.generateFont(parameter);
         generator.dispose();
+
+        this.buttonSound = Gdx.audio.newSound(Gdx.files.internal("sounds/effects/efectoBotones.ogg"));
 
         this.camera = new OrthographicCamera();
         this.viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
@@ -54,9 +62,6 @@ public abstract class BaseScreen implements Screen {
 
         camera.update();
         batch.setProjectionMatrix(camera.combined);
-
-        stage.act(delta);
-        stage.draw();
     }
 
     @Override
@@ -69,10 +74,15 @@ public abstract class BaseScreen implements Screen {
         font.dispose();
         batch.dispose();
         stage.dispose();
+        backgroundMusic.dispose();
+        buttonSound.dispose();
+    }
+    @Override
+    public void hide() {
+        backgroundMusic.stop();
     }
 
     @Override public void pause() {}
     @Override public void resume() {}
-    @Override public void hide() {}
 
 }

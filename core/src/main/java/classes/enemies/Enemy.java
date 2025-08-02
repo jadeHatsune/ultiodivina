@@ -31,7 +31,7 @@ public abstract class Enemy {
     protected int damage;
 
 
-    public Enemy(int x, int y, int life, int givenScore) {
+    public Enemy(int life, int givenScore) {
         this.life = life;
         this.givenScore = givenScore;
         currentState = EnemyState.IDLE;

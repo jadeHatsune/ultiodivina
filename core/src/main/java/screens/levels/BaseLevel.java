@@ -4,7 +4,6 @@ import classes.InputHandler;
 import classes.enemies.Enemy;
 import classes.effects.FloatingScore;
 import classes.enemies.EnemyState;
-import classes.enemies.slime.Slime;
 import classes.platforms.Platform;
 import classes.player.Player;
 import classes.player.PlayerFacing;
@@ -32,7 +31,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.hod.ultiodivina.Main;
 import screens.BaseScreen;
 import screens.GameOverScreen;
 import screens.MainMenuScreen;
@@ -44,15 +42,12 @@ public abstract class BaseLevel extends BaseScreen {
 
     //-- Constants --
     protected static final int PLATFORM_HEIGHT = 64;
-    protected static final int AERIAL_PLATFORM_WIDTH = 200;
     protected static final int AERIAL_LONG_PLATFORM_WIDTH = 300;
-    protected static final int GROUND_PLATFORM_DIF_Y = 15;
-    protected static final int AERIAL_PLATFORM_DIF_Y = 31;
+    protected static final int AERIAL_PLATFORM_WIDTH = 200;
     protected static final int VERTICAL_SPACING = 130;
     protected static final int SLIME_WIDTH = 61;
 
     //--- Sounds ---
-    protected Sound buttonsSound;
     protected Sound projectileSound;
 
     //--- GameStates
@@ -99,7 +94,6 @@ public abstract class BaseLevel extends BaseScreen {
         this.currentState = GameState.RUNNING;
 
         //--- SOUNDS CONFIGURATION ---
-        this.buttonsSound = Gdx.audio.newSound(Gdx.files.internal("sounds/effects/efectoBotones.ogg"));
         this.projectileSound = Gdx.audio.newSound(Gdx.files.internal("sounds/effects/efectoProyectil.ogg"));
 
         //--- PAUSE UI CONFIGURATION ---
@@ -137,6 +131,12 @@ public abstract class BaseLevel extends BaseScreen {
             togglePause();
         }
 
+        if(currentState == GameState.PAUSED){
+            backgroundMusic.setVolume(0.2f);
+        } else {
+            backgroundMusic.setVolume(0.5f);
+        }
+
         if(currentState == GameState.RUNNING) {
             updateEntities(delta);
         }
@@ -169,6 +169,8 @@ public abstract class BaseLevel extends BaseScreen {
 
     public abstract void setupLevelEnemies();
 
+    public abstract void setupPlayer();
+
     public void handleCollisions(){
         for(Enemy enemy : enemies) {
             if(player.getBounds().overlaps(enemy.getBounds())) {
@@ -186,8 +188,6 @@ public abstract class BaseLevel extends BaseScreen {
             }
         }
     }
-
-   public abstract void setupPlayer();
 
     public void setupLevelArrays(){
         this.platforms = new Array<>();
@@ -342,7 +342,7 @@ public abstract class BaseLevel extends BaseScreen {
             @Override
             public void changed(ChangeEvent changeEvent, Actor actor) {
                 //--- Toggle Pause ---
-                buttonsSound.play(0.5f);
+                buttonSound.play(0.5f);
                 SequenceAction sequenceAction = new SequenceAction();
                 sequenceAction.addAction(Actions.delay(0.3f));
                 sequenceAction.addAction(Actions.run(() -> togglePause()));
@@ -352,40 +352,36 @@ public abstract class BaseLevel extends BaseScreen {
         return continueButton;
     }
 
-    private Button getReturnButton(Button.ButtonStyle returnStyle) {
-        Button returnButton = new Button(returnStyle);
-
-        returnButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent changeEvent, Actor actor) {
-                buttonsSound.play(0.5f);
-                SequenceAction sequenceAction = new SequenceAction();
-                sequenceAction.addAction(Actions.delay(0.3f));
-                sequenceAction.addAction(Actions.run(() -> {
-                    game.setScreen(new MainMenuScreen(game));
-                }));
-                stage.addAction(sequenceAction);
-            }
-        });
-        return returnButton;
-    }
-
     private Button getRestartButton(Button.ButtonStyle restartStyle) {
         Button restartButton = new Button(restartStyle);
 
         restartButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent changeEvent, Actor actor) {
-                buttonsSound.play(0.5f);
+                buttonSound.play(0.5f);
                 SequenceAction sequenceAction = new SequenceAction();
                 sequenceAction.addAction(Actions.delay(0.3f));
-                sequenceAction.addAction(Actions.run(() -> {
-                    game.setScreen(new Level_1_1_Screen(game));
-                }));
+                sequenceAction.addAction(Actions.run(() -> game.setScreen(new Level_1_1_Screen(game))));
                 stage.addAction(sequenceAction);
             }
         });
         return restartButton;
+    }
+
+    private Button getReturnButton(Button.ButtonStyle returnStyle) {
+        Button returnButton = new Button(returnStyle);
+
+        returnButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent changeEvent, Actor actor) {
+                buttonSound.play(0.5f);
+                SequenceAction sequenceAction = new SequenceAction();
+                sequenceAction.addAction(Actions.delay(0.3f));
+                sequenceAction.addAction(Actions.run(() -> game.setScreen(new MainMenuScreen(game))));
+                stage.addAction(sequenceAction);
+            }
+        });
+        return returnButton;
     }
 
     public void togglePause() {
