@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 
+import java.util.Random;
+
 public abstract class Enemy {
 
     //--- CONSTANTS ---
@@ -19,43 +21,112 @@ public abstract class Enemy {
     protected float damageColorTimer;
     protected EnemyState currentState;
     protected EnemyFacing currentFacing;
+    protected int actionTimer;
+    protected final Random random;
+    protected float stateTime;
 
-    //-- Physics --
+    //-- PHYSICS --
     protected Rectangle bounds;
     protected float speedX;
     protected float speedY;
+    protected float gravity;
 
-    //--- Properties ---
+    //--- PROPERTIES ---
     protected int life;
     protected int givenScore;
     protected int damage;
+    protected boolean shouldSpawnProjectile;
+    protected boolean projectileSpawnedInThisAttack;
+
+    //--- ANIMATIONS ---
+    protected Animation<TextureRegion> animationIdle;
+    protected Animation<TextureRegion> animationWalking;
+    protected Animation<TextureRegion> animationAttack;
+    protected int attackSpawnFrame;
 
 
     public Enemy(int life, int givenScore) {
         this.life = life;
         this.givenScore = givenScore;
-        currentState = EnemyState.IDLE;
+        this.currentState = EnemyState.IDLE;
+        this.random = new Random();
+        this.isTakingDamage = false;
+        this.projectileSpawnedInThisAttack = false;
+        this.shouldSpawnProjectile = false;
+        this.actionTimer = 60;
     }
 
-    //--- Getters ---
+    //--- GETTERS ---
     public Rectangle getBounds() { return this.bounds; }
     public int getGivenScore() { return this.givenScore; }
     public EnemyState getCurrentState() { return this.currentState; }
     public int makeDamage() { return this.damage; }
+    public boolean shouldSpawnProjectile() {
+        return this.shouldSpawnProjectile;
+    }
 
+    //--- SETTERS ---
     public void takeDamage(int dmg) {
         this.life -= dmg;
         isTakingDamage = true;
         damageColorTimer = DAMAGE_COLOR_DURATION;
     }
 
-    public abstract void update(float delta, Array<Platform> platforms);
+    public void update(float delta, Array<Platform> platforms){
+        if(isTakingDamage) {
+            damageColorTimer -= delta;
+            if(damageColorTimer <= 0) {
+                isTakingDamage = false;
+            }
+        }
+
+        actionTimer--;
+        if (actionTimer <= 0) {
+            processMovement();
+        }
+
+        shouldSpawnProjectile = false;
+
+        speedY += gravity * delta;
+        moveX(delta, platforms);
+        moveY(delta, platforms);
+
+        stateTime += delta;
+
+        if(this.life > 0){
+            if(currentState == EnemyState.ATTACKING) {
+                if(animationAttack.isAnimationFinished(stateTime)) {
+                    transitionToState(EnemyState.IDLE);
+                } else {
+                    if(!projectileSpawnedInThisAttack && animationAttack.getKeyFrameIndex(stateTime) >= attackSpawnFrame) {
+                        shouldSpawnProjectile = true;
+                        projectileSpawnedInThisAttack = true;
+                    }
+                }
+            } else if(speedX != 0) {
+                transitionToState(EnemyState.WALKING);
+            } else {
+                transitionToState(EnemyState.IDLE);
+            }
+        } else {
+            transitionToState(EnemyState.DIE);
+        }
+    }
 
     public abstract void moveX(float delta, Array<Platform> platforms);
 
     public abstract void moveY(float delta, Array<Platform> platforms);
 
     public abstract void processMovement();
+
+    public abstract void attack();
+
+    public void transitionToState(EnemyState newState) {
+        if(this.currentState != newState) {
+            this.currentState = newState;
+            this.stateTime = 0f;
+        }
+    }
 
     public abstract void draw(Batch batch);
 

@@ -7,27 +7,27 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 
-public class Projectile {
+public abstract class Projectile {
 
-    //--- Projectile States ---
-    private ProjectileFacing currentFacing;
-    private ProjectileState currentState;
+    //--- STATES ---
+    protected ProjectileFacing currentFacing;
+    protected ProjectileState currentState;
 
-    //--- Physics ---
-    private Rectangle bounds;
-    private float speedX;
+    //--- PHYSICS ---
+    protected Rectangle bounds;
+    protected float speedX;
 
-    //--- Animations ---
-    private final Animation<TextureRegion> projectileAnimation;
-    private float stateTime;
+    //--- ANIMATIONS ---
+    protected Animation<TextureRegion> projectileAnimation;
+    protected float stateTime;
 
+    //--- PROPERTIES ---
+    protected final int damage;
 
-    public Projectile(int x, int y, float speedX, String spritePath) {
+    public Projectile(int damage, float speedX) {
+        this.damage = damage;
         this.speedX = speedX;
         this.currentState = ProjectileState.ACTIVE;
-        this.projectileAnimation = getAnimationSprite(1, 6, spritePath);
-        TextureRegion firstFrame = projectileAnimation.getKeyFrame(0);
-        this.bounds = new Rectangle(x, y, firstFrame.getRegionWidth(), firstFrame.getRegionHeight());
     }
 
     //--- Setters ---
@@ -35,6 +35,8 @@ public class Projectile {
 
     //--- Getters ---
     public Rectangle getBounds() { return this.bounds; }
+
+    public int makeDamage() { return this.damage; }
 
     public ProjectileState getCurrentState() { return this.currentState; }
 

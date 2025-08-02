@@ -2,80 +2,39 @@ package classes.enemies.slime;
 
 import classes.enemies.Enemy;
 import classes.enemies.EnemyFacing;
-import classes.enemies.EnemyState;
 import classes.platforms.Platform;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 
 import java.awt.*;
-import java.util.Random;
+
+import static screens.BaseScreen.VIRTUAL_WIDTH;
 
 
 public class Slime extends Enemy {
 
     //--- Constants ---
-    private static final float MOVE_SPEED = 100f;
-    private static final float GRAVITY = -800f;
-    private static final int DAMAGE = 1;
-
-    //--- Slime states ---
-    private int actionTimer;
-    private final Random random;
+    private static final float SLIME_MOVE_SPEED = 100f;
+    private static final float SLIME_GRAVITY = -800f;
+    private static final int SLIME_DAMAGE = 1;
+    private static final int SLIME_LIFE = 3;
+    private static final int SLIME_SCORE = 10;
 
     //-- Animations --
-    private final Animation<TextureRegion> animationWalking;
-    private final TextureRegion animationIdle;
-    private float stateTime;
+    private final TextureRegion frameIdle;
 
     public Slime(int x, int y) {
-        super(3, 10);
+        super(SLIME_LIFE, SLIME_SCORE);
 
-        stateTime = 0f;
-        actionTimer = 60;
-        random = new Random();
-        isTakingDamage = false;
-        this.damage = DAMAGE;
+        this.gravity = SLIME_GRAVITY;
+        this.damage = SLIME_DAMAGE;
 
         this.animationWalking = getAnimationSprite(1, 7, "enemies/slime/slime.png");
-        this.animationIdle = animationWalking.getKeyFrame(0);
+        this.frameIdle = animationWalking.getKeyFrame(0);
 
-        this.bounds = new Rectangle(x, y, animationIdle.getRegionWidth(), animationIdle.getRegionHeight());
-
-    }
-
-    @Override
-    public void update(float delta, Array<Platform> platforms) {
-        if(isTakingDamage) {
-            damageColorTimer -= delta;
-            if(damageColorTimer <= 0) {
-                isTakingDamage = false;
-            }
-        }
-
-        actionTimer--;
-        if (actionTimer <= 0) {
-            processMovement();
-        }
-
-        if(speedX != 0) {
-            transitionToState(EnemyState.WALKING);
-        } else {
-            transitionToState(EnemyState.IDLE);
-        }
-
-        speedY += GRAVITY * delta;
-        moveX(delta, platforms);
-        moveY(delta, platforms);
-
-        stateTime += delta;
-
-        if(life <= 0) {
-            transitionToState(EnemyState.DIE);
-        }
+        this.bounds = new Rectangle(x, y, frameIdle.getRegionWidth(), frameIdle.getRegionHeight());
 
     }
 
@@ -105,11 +64,13 @@ public class Slime extends Enemy {
         if(bounds.x < 0) {
             this.bounds.x = 0;
             this.speedX *= -1;
+            this.currentFacing = EnemyFacing.FACING_RIGHT;
         }
 
-        if (bounds.x + bounds.width > Gdx.graphics.getWidth()) {
-            this.bounds.x = Gdx.graphics.getWidth() - bounds.width;
+        if (bounds.x + bounds.width > VIRTUAL_WIDTH) {
+            this.bounds.x = VIRTUAL_WIDTH - bounds.width;
             this.speedX *= -1;
+            this.currentFacing = EnemyFacing.FACING_LEFT;
         }
     }
 
@@ -141,24 +102,19 @@ public class Slime extends Enemy {
                 this.speedX = 0;
                 break;
             case 1:
-                this.speedX = -MOVE_SPEED;
+                this.speedX = -SLIME_MOVE_SPEED;
                 currentFacing = EnemyFacing.FACING_LEFT;
                 break;
             case 2:
-                this.speedX = MOVE_SPEED;
+                this.speedX = SLIME_MOVE_SPEED;
                 currentFacing = EnemyFacing.FACING_RIGHT;
                 break;
         }
         this.actionTimer = random.nextInt(180) + 60;
     }
 
-    public void transitionToState(EnemyState newState) {
-        if(this.currentState != newState) {
-            this.currentState = newState;
-            this.stateTime = 0f;
-        }
-    }
-
+    @Override
+    public void attack() { }
 
     @Override
     public void draw(Batch batch) {
@@ -173,7 +129,7 @@ public class Slime extends Enemy {
                 break;
             case IDLE:
             default:
-                currentFrame = animationIdle;
+                currentFrame = frameIdle;
                 break;
         }
 

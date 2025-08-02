@@ -4,9 +4,9 @@ import classes.InputHandler;
 import classes.enemies.Enemy;
 import classes.effects.FloatingScore;
 import classes.enemies.EnemyState;
+import classes.enemies.flyingmouth.FlyingMouth;
 import classes.platforms.Platform;
 import classes.player.Player;
-import classes.player.PlayerFacing;
 import classes.projectiles.Projectile;
 import classes.projectiles.ProjectileState;
 import com.badlogic.gdx.Game;
@@ -46,6 +46,8 @@ public abstract class BaseLevel extends BaseScreen {
     protected static final int AERIAL_PLATFORM_WIDTH = 200;
     protected static final int VERTICAL_SPACING = 130;
     protected static final int SLIME_WIDTH = 61;
+    protected static final int FLYING_MOUTH_WIDTH = 64;
+    protected static final int FLYING_MOUTH_HEIGHT = 56;
 
     //--- Sounds ---
     protected Sound projectileSound;
@@ -68,6 +70,7 @@ public abstract class BaseLevel extends BaseScreen {
     protected int spawnPointX;
     protected int spawnPointY;
     protected Array<Projectile> projectiles;
+    protected Array<Projectile> enemiesProjectiles;
     protected Array<Enemy> enemies;
     protected Array<FloatingScore> floatingScores;
 
@@ -178,10 +181,16 @@ public abstract class BaseLevel extends BaseScreen {
             }
         }
 
+        for(Projectile projectile : enemiesProjectiles){
+            if(player.getBounds().overlaps((projectile.getBounds()))){
+                player.takeDamage(projectile.makeDamage());
+            }
+        }
+
         for(Projectile projectile : projectiles) {
             for(Enemy enemy : enemies) {
                 if(projectile.getBounds().overlaps(enemy.getBounds())) {
-                    enemy.takeDamage(1);
+                    enemy.takeDamage(projectile.makeDamage());
                     projectile.setCurrentState(ProjectileState.DEACTIVATE);
                     break;
                 }
@@ -193,6 +202,7 @@ public abstract class BaseLevel extends BaseScreen {
         this.platforms = new Array<>();
         this.enemies = new Array<>();
         this.projectiles = new Array<>();
+        this.enemiesProjectiles = new Array<>();
     }
 
     public void cleanupEntities(){
@@ -220,15 +230,8 @@ public abstract class BaseLevel extends BaseScreen {
         player.update(delta, platforms);
 
         if(player.shouldSpawnProjectile()) {
-            float projectileSpeed = 500f;
-            float startX = player.getCurrentFacing() == PlayerFacing.FACING_RIGHT ? player.getBounds().x + player.getBounds().width : player.getBounds().x;
-            float startY = player.getBounds().y + (player.getBounds().height / 3);
-
-            if(player.getCurrentFacing() == PlayerFacing.FACING_LEFT) {
-                projectileSpeed = -500f;
-            }
             projectileSound.play(0.5f);
-            projectiles.add(new Projectile((int) startX, (int) startY, projectileSpeed, "lymhiel/lymhiel_projectile.png"));
+            projectiles.add(player.setProjectile());
         }
 
         if(player.isDeathAnimationFinished()) { game.setScreen(new GameOverScreen(game)); }
@@ -239,6 +242,17 @@ public abstract class BaseLevel extends BaseScreen {
 
         for(Enemy enemy : enemies) {
             enemy.update(delta, platforms);
+            if(enemy instanceof FlyingMouth){
+                FlyingMouth flyingMouth = (FlyingMouth) enemy;
+                if(flyingMouth.shouldSpawnProjectile()){
+                    projectileSound.play(0.5f);
+                    enemiesProjectiles.add(flyingMouth.setProjectile());
+                }
+            }
+        }
+
+        for(Projectile projectile : enemiesProjectiles){
+            projectile.update(delta);
         }
 
         for (Iterator<FloatingScore> iter = floatingScores.iterator(); iter.hasNext(); ) {
@@ -266,6 +280,9 @@ public abstract class BaseLevel extends BaseScreen {
             enemy.draw(batch);
         }
         for(Projectile projectile : projectiles) {
+            projectile.draw(batch);
+        }
+        for(Projectile projectile : enemiesProjectiles){
             projectile.draw(batch);
         }
     }

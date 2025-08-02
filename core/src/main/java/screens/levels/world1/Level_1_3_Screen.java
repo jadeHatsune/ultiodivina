@@ -1,40 +1,26 @@
 package screens.levels.world1;
 
-import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.Game;
+import screens.levels.BaseLevel;
 
-public class Level_1_3_Screen implements Screen {
+public class Level_1_3_Screen extends BaseLevel {
+
+    public Level_1_3_Screen(Game game) {
+        super(game);
+    }
+
     @Override
-    public void show() {
+    public void setupLevelPlatforms() {
 
     }
 
     @Override
-    public void render(float v) {
+    public void setupLevelEnemies() {
 
     }
 
     @Override
-    public void resize(int i, int i1) {
-
-    }
-
-    @Override
-    public void pause() {
-
-    }
-
-    @Override
-    public void resume() {
-
-    }
-
-    @Override
-    public void hide() {
-
-    }
-
-    @Override
-    public void dispose() {
+    public void setupPlayer() {
 
     }
 }
