@@ -8,7 +8,7 @@ public class ProjectileFlyingMouth extends Projectile {
 
     public ProjectileFlyingMouth(int x, int y, float speed){
         super(1, speed);
-        this.projectileAnimation = getAnimationSprite(1, 4, "enemies/flyingmouth/Ojo_Proyectil-Sheet.png");
+        this.projectileAnimation = getAnimationSprite(1, 4, assetManager.get("enemies/flyingmouth/Ojo_Proyectil-Sheet.png"));
         TextureRegion firstFrame = projectileAnimation.getKeyFrame(0);
         this.bounds = new Rectangle(x, y, firstFrame.getRegionWidth(), firstFrame.getRegionHeight());
     }

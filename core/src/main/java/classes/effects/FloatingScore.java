@@ -7,7 +7,8 @@ import com.badlogic.gdx.math.Interpolation;
 
 public class FloatingScore {
     private final String text;
-    private float x, y;
+    private final float x;
+    private float y;
     private float timer;
     private final float lifetime;
     private final Color color;

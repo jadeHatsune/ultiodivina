@@ -31,15 +31,15 @@ public class GameOverScreen extends BaseScreen {
     public void show(){
         super.show();
 
-        this.backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/music/gameOverSong.ogg"));
+        this.backgroundMusic = assetManager.get("sounds/music/gameOverSong.ogg");
         this.backgroundMusic.setLooping(true);
         this.backgroundMusic.setVolume(0.5f);
         this.backgroundMusic.play();
 
-        this.buttonRestartTexture = new Texture(Gdx.files.internal("buttons/botonReintentar.png"));
-        this.buttonRestartHoverTexture = new Texture(Gdx.files.internal("buttons/botonReintentar2.png"));
-        this.buttonReturnTexture = new Texture(Gdx.files.internal("buttons/botonVolver.png"));
-        this.buttonReturnHoverTexture = new Texture(Gdx.files.internal("buttons/botonVolver2.png"));
+        this.buttonRestartTexture = assetManager.get("buttons/botonReintentar.png");
+        this.buttonRestartHoverTexture = assetManager.get("buttons/botonReintentar2.png");
+        this.buttonReturnTexture = assetManager.get("buttons/botonVolver.png");
+        this.buttonReturnHoverTexture = assetManager.get("buttons/botonVolver2.png");
 
         createGameOverTable();
     }

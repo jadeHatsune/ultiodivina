@@ -1,11 +1,13 @@
 package classes.projectiles;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
+import com.hod.ultiodivina.Main;
 
 public abstract class Projectile {
 
@@ -18,6 +20,7 @@ public abstract class Projectile {
     protected float speedX;
 
     //--- ANIMATIONS ---
+    protected AssetManager assetManager;
     protected Animation<TextureRegion> projectileAnimation;
     protected float stateTime;
 
@@ -25,6 +28,7 @@ public abstract class Projectile {
     protected final int damage;
 
     public Projectile(int damage, float speedX) {
+        this.assetManager = Main.assetManager;
         this.damage = damage;
         this.speedX = speedX;
         this.currentState = ProjectileState.ACTIVE;
@@ -66,9 +70,7 @@ public abstract class Projectile {
         batch.draw(currentFrame, bounds.x, bounds.y, bounds.width, bounds.height);
     }
 
-    public Animation<TextureRegion> getAnimationSprite(int frameCols, int frameRows, String spriteSheetPath) {
-        Texture spriteSheet = new Texture(Gdx.files.internal(spriteSheetPath));
-
+    public Animation<TextureRegion> getAnimationSprite(int frameCols, int frameRows, Texture spriteSheet) {
         int frameWidth = spriteSheet.getWidth() / frameCols;
         int frameHeight = spriteSheet.getHeight() / frameRows;
 

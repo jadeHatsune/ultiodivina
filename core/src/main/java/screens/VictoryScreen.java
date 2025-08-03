@@ -35,15 +35,15 @@ public class VictoryScreen extends BaseScreen {
     public void show() {
         super.show();
 
-        this.backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/music/victorySong.ogg"));
+        this.backgroundMusic = assetManager.get("sounds/music/victorySong.ogg");
         this.backgroundMusic.setLooping(false);
         this.backgroundMusic.setVolume(0.5f);
         this.backgroundMusic.play();
 
-        this.buttonContinueTexture = new Texture(Gdx.files.internal("buttons/botonContinuar.png"));
-        this.buttonContinueHoverTexture = new Texture(Gdx.files.internal("buttons/botonContinuar2.png"));
-        this.buttonReturnTexture = new Texture(Gdx.files.internal("buttons/botonVolver.png"));
-        this.buttonReturnHoverTexture = new Texture(Gdx.files.internal("buttons/botonVolver2.png"));
+        this.buttonContinueTexture = assetManager.get("buttons/botonContinuar.png");
+        this.buttonContinueHoverTexture = assetManager.get("buttons/botonContinuar2.png");
+        this.buttonReturnTexture = assetManager.get("buttons/botonVolver.png");
+        this.buttonReturnHoverTexture = assetManager.get("buttons/botonVolver2.png");
         createVictoryTable();
     }
 

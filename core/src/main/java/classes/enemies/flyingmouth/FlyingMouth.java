@@ -5,10 +5,12 @@ import classes.enemies.EnemyFacing;
 import classes.enemies.EnemyState;
 import classes.platforms.Platform;
 import classes.projectiles.enemies_projectiles.ProjectileFlyingMouth;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
+import com.hod.ultiodivina.Main;
 
 public class FlyingMouth extends Enemy {
 
@@ -26,8 +28,8 @@ public class FlyingMouth extends Enemy {
         this.damage = FLYING_MOUTH_DAMAGE;
         this.currentFacing = startFacing;
 
-        this.animationWalking = getAnimationSprite(1, 4, "enemies/flyingmouth/bocaConOjo_Movimiento-Sheet.png");
-        this.animationAttack = getAnimationSprite(1, 12, "enemies/flyingmouth/bocaConOjo_Expulsion-Sheet.png");
+        this.animationWalking = getAnimationSprite(1, 4, assetManager.get("enemies/flyingmouth/bocaConOjo_Movimiento-Sheet.png"));
+        this.animationAttack = getAnimationSprite(1, 12, assetManager.get("enemies/flyingmouth/bocaConOjo_Expulsion-Sheet.png"));
         this.attackSpawnFrame = 7;
 
         TextureRegion firstFrame = animationWalking.getKeyFrame(0);

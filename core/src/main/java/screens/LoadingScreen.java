@@ -3,7 +3,10 @@ package screens;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.utils.ScreenUtils;
 import com.hod.ultiodivina.Main;
 
 public class LoadingScreen implements Screen {
@@ -23,7 +26,7 @@ public class LoadingScreen implements Screen {
         assetManager.load("backgrounds/level1/nivel1-1.jpeg", Texture.class);
         assetManager.load("backgrounds/level1/nivel1-2.png", Texture.class);
         assetManager.load("backgrounds/level1/nivel1-3.png", Texture.class);
-        assetManager.load("backgrounds/mainMenuBack`ground.png", Texture.class);
+        assetManager.load("backgrounds/mainMenuBackground.png", Texture.class);
         //Buttons
         assetManager.load("buttons/botonContinuar.png", Texture.class);
         assetManager.load("buttons/botonContinuar2.png", Texture.class);
@@ -58,10 +61,29 @@ public class LoadingScreen implements Screen {
         assetManager.load("platforms/plataformaAereoIzquierda.png", Texture.class);
         assetManager.load("platforms/plataformaAereoLarga.png", Texture.class);
         assetManager.load("platforms/plataformaTierra.png", Texture.class);
+        //--- SOUNDS ---
+        assetManager.load("sounds/effects/efectoBotones.ogg", Sound.class);
+        assetManager.load("sounds/effects/efectoDamagePlayer.ogg", Sound.class);
+        assetManager.load("sounds/effects/efectoProyectil.ogg", Sound.class);
+        assetManager.load("sounds/effects/efectoSaltar.ogg", Sound.class);
+        //-- MUSIC ---
+        assetManager.load("sounds/music/bossWorld1BackgroundMusic.ogg", Music.class);
+        assetManager.load("sounds/music/gameOverSong.ogg", Music.class);
+        assetManager.load("sounds/music/mainMenuSong.ogg", Music.class);
+        assetManager.load("sounds/music/victorySong.ogg", Music.class);
+        assetManager.load("sounds/music/world1BackgroundMusic.ogg", Music.class);
     }
 
     @Override
     public void render(float delta) {
+        ScreenUtils.clear(0, 0, 0, 1);
+
+        if(assetManager.update()){
+            game.setScreen(new MainMenuScreen(game));
+        }
+
+        float progress = assetManager.getProgress();
+        System.out.println("Cargando: " + progress * 100 + "%");
 
     }
 

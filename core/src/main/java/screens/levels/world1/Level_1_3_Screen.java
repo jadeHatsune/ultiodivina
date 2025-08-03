@@ -27,8 +27,8 @@ public class Level_1_3_Screen extends BaseLevel {
         this.levelHeight = 1800;
         this.spawnPointX = (int)(levelWidth / 2 - this.player.getBounds().getWidth() / 2);
         this.spawnPointY = PLATFORM_HEIGHT;
-        this.backgroundTexture = new Texture(Gdx.files.internal("backgrounds/level1/nivel1-3.png"));
-        this.backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/music/bossWorld1BackgroundMusic.ogg"));
+        this.backgroundTexture = assetManager.get("backgrounds/level1/nivel1-3.png");
+        this.backgroundMusic = assetManager.get("sounds/music/bossWorld1BackgroundMusic.ogg");
         this.backgroundMusic.setLooping(true);
         this.backgroundMusic.setVolume(0.5f);
         this.backgroundMusic.play();

@@ -3,6 +3,7 @@ package classes.player;
 import classes.platforms.Platform;
 import classes.projectiles.player_projectiles.ProjectileBase;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -10,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
+import com.hod.ultiodivina.Main;
 
 public class Player {
 
@@ -63,11 +65,12 @@ public class Player {
         this.projectileSpawnedInThisAttack = false;
         this.shouldSpawnProjectile = false;
 
-        animationIdle = getAnimationSprite(1, 7, "lymhiel/lymhiel_idle.png");
-        animationWalking = getAnimationSprite(1, 6, "lymhiel/lymhiel_walking.png");
-        animationJumping = getAnimationSprite(1, 6, "lymhiel/lymhiel_jumping.png");
-        animationDie = getAnimationSprite(1, 10, "lymhiel/lymhiel_die.png");
-        animationAttack = getAnimationSprite(1, 6, "lymhiel/lymhiel_attack.png");
+        AssetManager assetManager = Main.assetManager;
+        animationIdle = getAnimationSprite(1, 7, assetManager.get("lymhiel/lymhiel_idle.png"));
+        animationWalking = getAnimationSprite(1, 6, assetManager.get("lymhiel/lymhiel_walking.png"));
+        animationJumping = getAnimationSprite(1, 6, assetManager.get("lymhiel/lymhiel_jumping.png"));
+        animationDie = getAnimationSprite(1, 10, assetManager.get("lymhiel/lymhiel_die.png"));
+        animationAttack = getAnimationSprite(1, 6, assetManager.get("lymhiel/lymhiel_attack.png"));
 
         TextureRegion firstFrame = animationIdle.getKeyFrame(0);
         this.bounds = new Rectangle(x, y, firstFrame.getRegionWidth(), firstFrame.getRegionHeight());
@@ -310,9 +313,7 @@ public class Player {
         }
     }
 
-    public Animation<TextureRegion> getAnimationSprite(int frameCols, int frameRows, String spriteSheetPath) {
-        Texture spriteSheet = new Texture(Gdx.files.internal(spriteSheetPath));
-
+    public Animation<TextureRegion> getAnimationSprite(int frameCols, int frameRows, Texture spriteSheet) {
         int frameWidth = spriteSheet.getWidth() / frameCols;
         int frameHeight = spriteSheet.getHeight() / frameRows;
 

@@ -14,7 +14,7 @@ public class PlatformGround extends Platform {
 
     public PlatformGround(int x, int y) {
         super();
-        this.sprite = new Texture(Gdx.files.internal("platforms/plataformaTierra.png"));
+        this.sprite = assetManager.get("platforms/plataformaTierra.png");
         this.bounds = new Rectangle(x, y, sprite.getWidth(), sprite.getHeight() - GROUND_PLATFORM_DIF_Y);
     }
 

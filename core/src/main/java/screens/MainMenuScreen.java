@@ -30,17 +30,17 @@ public class MainMenuScreen extends BaseScreen {
     public void show() {
         super.show();
 
-        backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/music/mainMenuSong.ogg"));
+        backgroundMusic = assetManager.get("sounds/music/mainMenuSong.ogg");
         backgroundMusic.setLooping(true);
         backgroundMusic.setVolume(0.5f);
         backgroundMusic.play();
 
-        backgroundTexture = new Texture(Gdx.files.internal("backgrounds/mainMenuBackground.png"));
+        backgroundTexture = assetManager.get("backgrounds/mainMenuBackground.png");
 
-        playButtonTexture = new Texture(Gdx.files.internal("buttons/botonJugar.png"));
-        exitButtonTexture = new Texture(Gdx.files.internal("buttons/botonsalir.png"));
-        playButtonTextureHover = new Texture(Gdx.files.internal("buttons/botonJugar2.png"));
-        exitButtonTextureHover = new Texture(Gdx.files.internal("buttons/botonsalir2.png"));
+        playButtonTexture = assetManager.get("buttons/botonJugar.png");
+        exitButtonTexture = assetManager.get("buttons/botonsalir.png");
+        playButtonTextureHover = assetManager.get("buttons/botonJugar2.png");
+        exitButtonTextureHover = assetManager.get("buttons/botonsalir2.png");
 
         createMenuTable();
     }

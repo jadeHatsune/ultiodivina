@@ -3,6 +3,7 @@ package screens;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
@@ -14,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.hod.ultiodivina.Main;
 
 public abstract class BaseScreen implements Screen {
 
@@ -23,6 +25,7 @@ public abstract class BaseScreen implements Screen {
 
     //--- Shared objects ---
     protected final Game game;
+    protected AssetManager assetManager;
     protected final BitmapFont font;
     protected final OrthographicCamera camera;
     protected final Viewport viewport;
@@ -35,6 +38,7 @@ public abstract class BaseScreen implements Screen {
 
     public BaseScreen(Game game) {
         this.game = game;
+        this.assetManager = ((Main) game).assetManager;
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/AngelFortune.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 24;
@@ -42,7 +46,7 @@ public abstract class BaseScreen implements Screen {
         this.font = generator.generateFont(parameter);
         generator.dispose();
 
-        this.buttonSound = Gdx.audio.newSound(Gdx.files.internal("sounds/effects/efectoBotones.ogg"));
+        this.buttonSound = assetManager.get("sounds/effects/efectoBotones.ogg");
 
         this.camera = new OrthographicCamera();
         this.viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);

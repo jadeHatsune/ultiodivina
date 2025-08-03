@@ -102,15 +102,15 @@ public abstract class BaseLevel extends BaseScreen {
         this.currentState = GameState.RUNNING;
 
         //--- SOUNDS CONFIGURATION ---
-        this.projectileSound = Gdx.audio.newSound(Gdx.files.internal("sounds/effects/efectoProyectil.ogg"));
+        this.projectileSound = assetManager.get("sounds/effects/efectoProyectil.ogg", Sound.class);
 
         //--- PAUSE UI CONFIGURATION ---
-        continueButtonTexture = new Texture(Gdx.files.internal("buttons/botonContinuar.png"));
-        continueButtonHoverTexture = new Texture(Gdx.files.internal("buttons/botonContinuar2.png"));
-        restartButtonTexture = new Texture(Gdx.files.internal("buttons/botonReintentar.png"));
-        restartButtonHoverTexture = new Texture(Gdx.files.internal("buttons/botonReintentar2.png"));
-        returnMenuButtonTexture = new Texture((Gdx.files.internal("buttons/botonVolver.png")));
-        returnMenuButtonHoverTexture = new Texture(Gdx.files.internal("buttons/botonVolver2.png"));
+        continueButtonTexture = assetManager.get("buttons/botonContinuar.png", Texture.class);
+        continueButtonHoverTexture = assetManager.get("buttons/botonContinuar2.png");
+        restartButtonTexture = assetManager.get("buttons/botonReintentar.png");
+        restartButtonHoverTexture = assetManager.get("buttons/botonReintentar2.png");
+        returnMenuButtonTexture = assetManager.get("buttons/botonVolver.png");
+        returnMenuButtonHoverTexture = assetManager.get("buttons/botonVolver2.png");
 
         //--- HUD CONFIGURATION ---
         this.lifeSprites = new Array<>();
@@ -118,10 +118,10 @@ public abstract class BaseLevel extends BaseScreen {
         this.hudCamera = new OrthographicCamera();
         this.hudCamera.setToOrtho(false, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
         this.displayScore = 0;
-        this.animationLifeEnds = getAnimationSprite(1, 10, "hud/caliz0Vidas.png");
-        this.lifeSprites.add(new Texture("hud/caliz1Vidas.png"));
-        this.lifeSprites.add(new Texture("hud/caliz2Vidas.png"));
-        this. lifeSprites.add(new Texture("hud/caliz3Vidas.png"));
+        this.animationLifeEnds = getAnimationSprite(1, 10, assetManager.get("hud/caliz0Vidas.png"));
+        this.lifeSprites.add(assetManager.get("hud/caliz1Vidas.png"));
+        this.lifeSprites.add(assetManager.get("hud/caliz2Vidas.png"));
+        this. lifeSprites.add(assetManager.get("hud/caliz3Vidas.png"));
 
         uiViewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, hudCamera);
 
@@ -432,9 +432,7 @@ public abstract class BaseLevel extends BaseScreen {
         }
     }
 
-    public Animation<TextureRegion> getAnimationSprite(int frameCols, int frameRows, String spriteSheetPath) {
-        Texture spriteSheet = new Texture(Gdx.files.internal(spriteSheetPath));
-
+    public Animation<TextureRegion> getAnimationSprite(int frameCols, int frameRows, Texture spriteSheet) {
         int frameWidth = spriteSheet.getWidth() / frameCols;
         int frameHeight = spriteSheet.getHeight() / frameRows;
 

@@ -16,14 +16,14 @@ public class PlatformAerial extends Platform{
         super();
         switch(type){
             case "left":
-                this.sprite = new Texture(Gdx.files.internal("platforms/plataformaAereoIzquierda.png"));
+                this.sprite = assetManager.get("platforms/plataformaAereoIzquierda.png");
                 break;
             case "large":
-                this.sprite = new Texture(Gdx.files.internal("platforms/plataformaAereoLarga.png"));
+                this.sprite = assetManager.get("platforms/plataformaAereoLarga.png");
                 break;
             case "right":
             default:
-                this.sprite = new Texture(Gdx.files.internal("platforms/plataformaAereoDerecha.png"));
+                this.sprite = assetManager.get("platforms/plataformaAereoDerecha.png");
         }
 
         this.bounds = new Rectangle(x, y, sprite.getWidth(), sprite.getHeight() - AERIAL_PLATFORM_DIF_Y);

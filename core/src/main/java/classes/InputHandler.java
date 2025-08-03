@@ -6,7 +6,7 @@ import com.badlogic.gdx.Input;
 
 public class InputHandler {
 
-    private Player player;
+    private final Player player;
 
     public InputHandler(Player player) {
         this.player = player;

@@ -29,7 +29,7 @@ public class Slime extends Enemy {
         this.gravity = SLIME_GRAVITY;
         this.damage = SLIME_DAMAGE;
 
-        this.animationWalking = getAnimationSprite(1, 7, "enemies/slime/slime.png");
+        this.animationWalking = getAnimationSprite(1, 7, assetManager.get("enemies/slime/slime.png"));
         this.frameIdle = animationWalking.getKeyFrame(0);
 
         this.bounds = new Rectangle(x, y, frameIdle.getRegionWidth(), frameIdle.getRegionHeight());
