@@ -3,12 +3,14 @@ package screens;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import screens.levels.world1.Level_1_1_Screen;
+import screens.levels.world1.Level_1_3_Screen;
 
 public class MainMenuScreen extends BaseScreen {
 
@@ -18,11 +20,6 @@ public class MainMenuScreen extends BaseScreen {
     private Texture exitButtonTexture;
     private Texture exitButtonTextureHover;
 
-    private TextureRegionDrawable playButtonNormalDrawable;
-    private TextureRegionDrawable playButtonHoverDrawable;
-    private TextureRegionDrawable exitButtonNormalDrawable;
-    private TextureRegionDrawable exitButtonHoverDrawable;
-
 
 
     public MainMenuScreen(Game game){
@@ -30,7 +27,7 @@ public class MainMenuScreen extends BaseScreen {
     }
 
     @Override
-    public void show(){
+    public void show() {
         super.show();
 
         backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/music/mainMenuSong.ogg"));
@@ -45,12 +42,7 @@ public class MainMenuScreen extends BaseScreen {
         playButtonTextureHover = new Texture(Gdx.files.internal("buttons/botonJugar2.png"));
         exitButtonTextureHover = new Texture(Gdx.files.internal("buttons/botonsalir2.png"));
 
-        playButtonNormalDrawable = new TextureRegionDrawable(new TextureRegion(playButtonTexture));
-        playButtonHoverDrawable = new TextureRegionDrawable(new TextureRegion(playButtonTextureHover));
-        exitButtonNormalDrawable = new TextureRegionDrawable(new TextureRegion(exitButtonTexture));
-        exitButtonHoverDrawable = new TextureRegionDrawable(new TextureRegion(exitButtonTextureHover));
-
-        createButtons();
+        createMenuTable();
     }
 
     @Override
@@ -79,63 +71,66 @@ public class MainMenuScreen extends BaseScreen {
         super.hide();
     }
 
-    public void createButtons() {
-        //Botón jugar
-        Image playButton = new Image(playButtonTexture);
-        playButton.setPosition((float) VIRTUAL_WIDTH / 2 - playButton.getWidth() / 2, (float) VIRTUAL_HEIGHT / 2 - playButton.getHeight() / 2);
-        playButton.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
-           @Override
-            public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
-               buttonSound.play(0.5f);
-               SequenceAction sequenceAction = new SequenceAction();
-               sequenceAction.addAction(Actions.delay(0.3f));
-               sequenceAction.addAction(Actions.run(() -> {
-                   game.setScreen(new Level_1_1_Screen(game));
-                   dispose();
-               }));
-               stage.addAction(sequenceAction);
-               return true;
-           }
+    public void createMenuTable() {
+        Table menuTable = new Table();
+        menuTable.setFillParent(true);
+        Button.ButtonStyle playStyle = new Button.ButtonStyle();
+        playStyle.up = new TextureRegionDrawable(playButtonTexture);
+        playStyle.over = new TextureRegionDrawable(playButtonTextureHover);
 
-           @Override
-            public void enter(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, com.badlogic.gdx.scenes.scene2d.Actor fromActor){
-                playButton.setDrawable(playButtonHoverDrawable);
-           }
+        Button playButton = getPlayButton(playStyle);
 
-           @Override
-            public void exit(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, com.badlogic.gdx.scenes.scene2d.Actor fromActor){
-               playButton.setDrawable(playButtonNormalDrawable);
-           }
-        });
-        stage.addActor(playButton);
+        Button.ButtonStyle exitStyle = new Button.ButtonStyle();
+        exitStyle.up = new TextureRegionDrawable(exitButtonTexture);
+        exitStyle.over = new TextureRegionDrawable(exitButtonTextureHover);
 
-        //Botón salir
-        Image exitButton = new Image(exitButtonTexture);
-        exitButton.setPosition((float) VIRTUAL_WIDTH / 2 - exitButton.getWidth() / 2, playButton.getY() - playButton.getHeight() - 20);
-        exitButton.addListener(new com.badlogic.gdx.scenes.scene2d.InputListener() {
-           @Override
-           public boolean touchDown(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, int button) {
-               buttonSound.play(0.5f);
-               SequenceAction sequenceAction = new SequenceAction();
-               sequenceAction.addAction(Actions.delay(0.3f));
-               sequenceAction.addAction(Actions.run(() -> {
-                   Gdx.app.exit();
-               }));
-               stage.addAction(sequenceAction);
-               return true;
-           }
+        Button exitButton = getExitButton(exitStyle);
 
+        menuTable.add(playButton).padBottom(10).padTop(80).row();
+        menuTable.add(exitButton).padBottom(10).row();
+
+        menuTable.setVisible(true);
+
+        stage.addActor(menuTable);
+    }
+
+    public Button getPlayButton(Button.ButtonStyle playStyle){
+        Button playButton = new Button(playStyle);
+
+        playButton.addListener(new ChangeListener() {
             @Override
-            public void enter(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, com.badlogic.gdx.scenes.scene2d.Actor fromActor){
-                exitButton.setDrawable(exitButtonHoverDrawable);
+            public void changed(ChangeEvent changeEvent, Actor actor) {
+                buttonSound.play(0.5f);
+                SequenceAction sequenceAction = new SequenceAction();
+                sequenceAction.addAction(Actions.delay(0.3f));
+                sequenceAction.addAction(Actions.run(() -> {
+                    //game.setScreen(new Level_1_1_Screen(game));
+                    game.setScreen(new Level_1_3_Screen(game));
+                    dispose();
+                }));
+                stage.addAction(sequenceAction);
             }
-
-            @Override
-            public void exit(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, com.badlogic.gdx.scenes.scene2d.Actor fromActor){
-                exitButton.setDrawable(exitButtonNormalDrawable);
-            }
-
         });
-        stage.addActor(exitButton);
+
+        return playButton;
+    }
+
+    public Button getExitButton(Button.ButtonStyle exitStyle) {
+        Button exitButton = new Button(exitStyle);
+
+        exitButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent changeEvent, Actor actor) {
+                buttonSound.play(0.5f);
+                SequenceAction sequenceAction = new SequenceAction();
+                sequenceAction.addAction(Actions.delay(0.3f));
+                sequenceAction.addAction(Actions.run(() -> {
+                    Gdx.app.exit();
+                }));
+                stage.addAction(sequenceAction);
+            }
+        });
+
+        return exitButton;
     }
 }

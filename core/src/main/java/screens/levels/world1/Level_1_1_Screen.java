@@ -24,6 +24,8 @@ public class Level_1_1_Screen extends BaseLevel {
         super.show();
 
         //--- LEVEL CONFIGURATION ---
+        this.levelWidth = 800;
+        this.levelHeight = 600;
         this.player.restartScore();
         this.player.restartLife();
         this.player.setPlayerState(PlayerState.IDLE);

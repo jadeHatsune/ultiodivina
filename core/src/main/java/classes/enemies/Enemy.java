@@ -72,7 +72,7 @@ public abstract class Enemy {
         damageColorTimer = DAMAGE_COLOR_DURATION;
     }
 
-    public void update(float delta, Array<Platform> platforms){
+    public void update(float delta, Array<Platform> platforms, float worldWidth){
         if(isTakingDamage) {
             damageColorTimer -= delta;
             if(damageColorTimer <= 0) {
@@ -88,7 +88,7 @@ public abstract class Enemy {
         shouldSpawnProjectile = false;
 
         speedY += gravity * delta;
-        moveX(delta, platforms);
+        moveX(delta, platforms, worldWidth);
         moveY(delta, platforms);
 
         stateTime += delta;
@@ -113,7 +113,7 @@ public abstract class Enemy {
         }
     }
 
-    public abstract void moveX(float delta, Array<Platform> platforms);
+    public abstract void moveX(float delta, Array<Platform> platforms, float worldWidth);
 
     public abstract void moveY(float delta, Array<Platform> platforms);
 

@@ -60,6 +60,8 @@ public abstract class BaseScreen implements Screen {
     public void render(float delta){
         ScreenUtils.clear(0, 0, 0, 1);
 
+        viewport.apply();
+
         camera.update();
         batch.setProjectionMatrix(camera.combined);
     }
@@ -67,6 +69,7 @@ public abstract class BaseScreen implements Screen {
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height, true);
+        stage.getViewport().update(width, height, true);
     }
 
     @Override

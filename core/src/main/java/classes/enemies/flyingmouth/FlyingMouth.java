@@ -10,8 +10,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 
-import static screens.BaseScreen.VIRTUAL_WIDTH;
-
 public class FlyingMouth extends Enemy {
 
     //--- CONSTANTS ---
@@ -38,7 +36,7 @@ public class FlyingMouth extends Enemy {
     }
 
     @Override
-    public void moveX(float delta, Array<Platform> platforms) {
+    public void moveX(float delta, Array<Platform> platforms, float worldWidth) {
         bounds.x += speedX * delta;
         if(bounds.x < 0) {
             this.bounds.x = 0;
@@ -46,8 +44,8 @@ public class FlyingMouth extends Enemy {
             this.currentFacing = EnemyFacing.FACING_RIGHT;
         }
 
-        if (bounds.x + bounds.width > VIRTUAL_WIDTH) {
-            this.bounds.x = VIRTUAL_WIDTH - bounds.width;
+        if (bounds.x + bounds.width > worldWidth) {
+            this.bounds.x = worldWidth - bounds.width;
             this.speedX *= -1;
             this.currentFacing = EnemyFacing.FACING_LEFT;
         }

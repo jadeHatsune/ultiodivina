@@ -10,8 +10,6 @@ import com.badlogic.gdx.utils.Array;
 
 import java.awt.*;
 
-import static screens.BaseScreen.VIRTUAL_WIDTH;
-
 
 public class Slime extends Enemy {
 
@@ -39,7 +37,7 @@ public class Slime extends Enemy {
     }
 
     @Override
-    public void moveX(float delta, Array<Platform> platforms) {
+    public void moveX(float delta, Array<Platform> platforms, float worldWidth) {
         // --- LÓGICA DE SENSOR DE BORDES ---
         if (speedX != 0) {
             int sensorX = (int) (speedX > 0 ? bounds.x + bounds.width : bounds.x - 1);
@@ -67,8 +65,8 @@ public class Slime extends Enemy {
             this.currentFacing = EnemyFacing.FACING_RIGHT;
         }
 
-        if (bounds.x + bounds.width > VIRTUAL_WIDTH) {
-            this.bounds.x = VIRTUAL_WIDTH - bounds.width;
+        if (bounds.x + bounds.width > worldWidth) {
+            this.bounds.x = worldWidth - bounds.width;
             this.speedX *= -1;
             this.currentFacing = EnemyFacing.FACING_LEFT;
         }

@@ -21,6 +21,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
@@ -30,7 +31,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import screens.BaseScreen;
 import screens.GameOverScreen;
 import screens.MainMenuScreen;
@@ -55,6 +57,8 @@ public abstract class BaseLevel extends BaseScreen {
     //--- GameStates
     protected GameState currentState;
     protected Texture backgroundTexture;
+    protected float levelWidth;
+    protected float levelHeight;
 
     //--- Pause UI ---
     protected Table pauseTable;
@@ -64,6 +68,7 @@ public abstract class BaseLevel extends BaseScreen {
     protected Texture restartButtonHoverTexture;
     protected Texture returnMenuButtonTexture;
     protected Texture returnMenuButtonHoverTexture;
+    protected Viewport uiViewport;
 
     //--- Entities ---
     protected Player player;
@@ -110,13 +115,18 @@ public abstract class BaseLevel extends BaseScreen {
         //--- HUD CONFIGURATION ---
         this.lifeSprites = new Array<>();
         this.floatingScores = new Array<>();
-        hudCamera = new OrthographicCamera();
-        hudCamera.setToOrtho(false, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+        this.hudCamera = new OrthographicCamera();
+        this.hudCamera.setToOrtho(false, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
         this.displayScore = 0;
-        animationLifeEnds = getAnimationSprite(1, 10, "hud/caliz0Vidas.png");
-        lifeSprites.add(new Texture("hud/caliz1Vidas.png"));
-        lifeSprites.add(new Texture("hud/caliz2Vidas.png"));
-        lifeSprites.add(new Texture("hud/caliz3Vidas.png"));
+        this.animationLifeEnds = getAnimationSprite(1, 10, "hud/caliz0Vidas.png");
+        this.lifeSprites.add(new Texture("hud/caliz1Vidas.png"));
+        this.lifeSprites.add(new Texture("hud/caliz2Vidas.png"));
+        this. lifeSprites.add(new Texture("hud/caliz3Vidas.png"));
+
+        uiViewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, hudCamera);
+
+        stage.setViewport(uiViewport);
+        Gdx.input.setInputProcessor(stage);
 
         //--- PAUSE UI CONFIGURATION ---
         createPauseTable();
@@ -144,14 +154,19 @@ public abstract class BaseLevel extends BaseScreen {
             updateEntities(delta);
         }
 
-        ScreenUtils.clear(0, 0, 0, 1);
+        camera.position.x = player.getBounds().x;
+        camera.position.x = MathUtils.clamp(camera.position.x, (float) VIRTUAL_WIDTH / 2, levelWidth - ((float) VIRTUAL_WIDTH / 2));
+
+        camera.position.y = player.getBounds().y;
+        camera.position.y = MathUtils.clamp(camera.position.y, (float) VIRTUAL_HEIGHT / 2, levelHeight - ((float) VIRTUAL_HEIGHT / 2));
 
         //--- Dibujado de juego ---
-        batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        batch.draw(backgroundTexture, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+        batch.draw(backgroundTexture, 0, 0, levelWidth, levelHeight);
         drawEntities(batch);
+
         //--- Dibujado de HUD ---
+        uiViewport.apply();
         drawHUD(batch, delta);
         batch.end();
 
@@ -168,13 +183,19 @@ public abstract class BaseLevel extends BaseScreen {
         }
     }
 
+    @Override
+    public void resize(int width, int height){
+        viewport.update(width, height, true);
+        uiViewport.update(width, height, true);
+    }
+
     public abstract void setupLevelPlatforms();
 
     public abstract void setupLevelEnemies();
 
     public abstract void setupPlayer();
 
-    public void handleCollisions(){
+    public void handleCollisions() {
         for(Enemy enemy : enemies) {
             if(player.getBounds().overlaps(enemy.getBounds())) {
                 player.takeDamage(enemy.makeDamage());
@@ -198,14 +219,14 @@ public abstract class BaseLevel extends BaseScreen {
         }
     }
 
-    public void setupLevelArrays(){
+    public void setupLevelArrays() {
         this.platforms = new Array<>();
         this.enemies = new Array<>();
         this.projectiles = new Array<>();
         this.enemiesProjectiles = new Array<>();
     }
 
-    public void cleanupEntities(){
+    public void cleanupEntities() {
         //--- Limpieza de Proyectiles ---
         for (Iterator<Projectile> iter = projectiles.iterator(); iter.hasNext(); ) {
             Projectile projectile = iter.next();
@@ -225,9 +246,9 @@ public abstract class BaseLevel extends BaseScreen {
         }
     }
 
-    public void updateEntities(float delta){
+    public void updateEntities(float delta) {
         inputHandler.update();
-        player.update(delta, platforms);
+        player.update(delta, platforms, levelWidth);
 
         if(player.shouldSpawnProjectile()) {
             projectileSound.play(0.5f);
@@ -241,7 +262,7 @@ public abstract class BaseLevel extends BaseScreen {
         }
 
         for(Enemy enemy : enemies) {
-            enemy.update(delta, platforms);
+            enemy.update(delta, platforms, levelWidth);
             if(enemy instanceof FlyingMouth){
                 FlyingMouth flyingMouth = (FlyingMouth) enemy;
                 if(flyingMouth.shouldSpawnProjectile()){
@@ -271,7 +292,7 @@ public abstract class BaseLevel extends BaseScreen {
         cleanupEntities();
     }
 
-    public void drawEntities(Batch batch){
+    public void drawEntities(Batch batch) {
         player.draw(batch);
         for(Platform platform : platforms) {
             platform.draw(batch);

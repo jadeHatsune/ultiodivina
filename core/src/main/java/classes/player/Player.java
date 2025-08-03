@@ -11,8 +11,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 
-import static screens.BaseScreen.VIRTUAL_WIDTH;
-
 public class Player {
 
     //--- CONSTANTS ---
@@ -115,7 +113,7 @@ public class Player {
     public int getScore() { return this.score; }
 
     //--- MOVEMENT ---
-    public void moveX(float delta, Array<Platform> platforms) {
+    public void moveX(float delta, Array<Platform> platforms, float worldWidth) {
         if (currentState == PlayerState.DIE) {
             speedX = 0;
             return;
@@ -139,8 +137,8 @@ public class Player {
             this.speedX *= -1;
         }
 
-        if (bounds.x + bounds.width > VIRTUAL_WIDTH) {
-            this.bounds.x = VIRTUAL_WIDTH - bounds.width;
+        if (bounds.x + bounds.width > worldWidth) {
+            this.bounds.x = worldWidth - bounds.width;
             this.speedX *= -1;
         }
     }
@@ -162,6 +160,10 @@ public class Player {
                 }
                 break;
             }
+        }
+
+        if(bounds.y < 0){
+            bounds.y = 64;
         }
     }
 
@@ -214,7 +216,7 @@ public class Player {
     }
 
     // --- UPDATES ---
-    public void update(float delta, Array<Platform> platforms) {
+    public void update(float delta, Array<Platform> platforms, float worldWidth) {
         if(currentState == PlayerState.DIE) {
             stateTime += delta;
             return;
@@ -232,7 +234,7 @@ public class Player {
 
         speedY += GRAVITY * delta;
 
-        moveX(delta, platforms);
+        moveX(delta, platforms, worldWidth);
         moveY(delta, platforms);
 
         stateTime += delta;

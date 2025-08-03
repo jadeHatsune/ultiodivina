@@ -25,6 +25,8 @@ public class Level_1_2_Screen extends BaseLevel {
         super.show();
 
         //--- LEVEL CONFIGURATION ---
+        this.levelWidth = 800;
+        this.levelHeight = 600;
         this.spawnPointX = (int) (VIRTUAL_WIDTH - this.player.getBounds().getWidth());
         this.spawnPointY = PLATFORM_HEIGHT;
         this.backgroundTexture = new Texture(Gdx.files.internal("backgrounds/level1/nivel1-2.png"));
