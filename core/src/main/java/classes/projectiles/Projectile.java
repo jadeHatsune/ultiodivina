@@ -20,7 +20,6 @@ public abstract class Projectile {
     protected float speedX;
 
     //--- ANIMATIONS ---
-    protected AssetManager assetManager;
     protected Animation<TextureRegion> projectileAnimation;
     protected float stateTime;
 
@@ -28,7 +27,6 @@ public abstract class Projectile {
     protected final int damage;
 
     public Projectile(int damage, float speedX) {
-        this.assetManager = Main.assetManager;
         this.damage = damage;
         this.speedX = speedX;
         this.currentState = ProjectileState.ACTIVE;

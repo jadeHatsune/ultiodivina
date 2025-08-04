@@ -1,8 +1,13 @@
 package screens;
 
+import classes.player.Player;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
@@ -10,7 +15,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.hod.ultiodivina.Main;
+import screens.levels.world1.Level_1_1_Screen;
 import screens.levels.world1.Level_1_3_Screen;
+
+import static classes.AssetDescriptors.*;
 
 public class MainMenuScreen extends BaseScreen {
 
@@ -20,8 +29,6 @@ public class MainMenuScreen extends BaseScreen {
     private Texture exitButtonTexture;
     private Texture exitButtonTextureHover;
 
-
-
     public MainMenuScreen(Game game){
         super(game);
     }
@@ -30,17 +37,26 @@ public class MainMenuScreen extends BaseScreen {
     public void show() {
         super.show();
 
-        backgroundMusic = assetManager.get("sounds/music/mainMenuSong.ogg");
+        ((Main) game).player = new Player(0, 0, getAnimationSprite(1, 7, assetManager.get(PLAYER_IDLE, Texture.class)),
+            getAnimationSprite(1, 6, assetManager.get(PLAYER_WALKING, Texture.class)),
+            getAnimationSprite(1, 6, assetManager.get(PLAYER_JUMP, Texture.class)),
+            getAnimationSprite(1, 10, assetManager.get(PLAYER_DIE, Texture.class)),
+            getAnimationSprite(1, 6, assetManager.get(PLAYER_ATTACK, Texture.class)),
+            getAnimationSprite(1, 6, assetManager.get(PLAYER_PROJECTILE, Texture.class)),
+            assetManager.get(SOUND_DMG_PLAYER, Sound.class),
+            assetManager.get(SOUND_JUMP, Sound.class));
+
+        backgroundMusic = assetManager.get(MAIN_MENU_SONG, Music.class);
         backgroundMusic.setLooping(true);
         backgroundMusic.setVolume(0.5f);
         backgroundMusic.play();
 
-        backgroundTexture = assetManager.get("backgrounds/mainMenuBackground.png");
+        backgroundTexture = assetManager.get(BG_MAIN_MENU, Texture.class);
 
-        playButtonTexture = assetManager.get("buttons/botonJugar.png");
-        exitButtonTexture = assetManager.get("buttons/botonsalir.png");
-        playButtonTextureHover = assetManager.get("buttons/botonJugar2.png");
-        exitButtonTextureHover = assetManager.get("buttons/botonsalir2.png");
+        playButtonTexture = assetManager.get(BTN_PLAY, Texture.class);
+        exitButtonTexture = assetManager.get(BTN_EXIT, Texture.class);
+        playButtonTextureHover = assetManager.get(BTN_PLAY_HOVER, Texture.class);
+        exitButtonTextureHover = assetManager.get(BTN_EXIT_HOVER, Texture.class);
 
         createMenuTable();
     }
@@ -59,11 +75,6 @@ public class MainMenuScreen extends BaseScreen {
     @Override
     public void dispose() {
         super.dispose();
-        backgroundTexture.dispose();
-        playButtonTexture.dispose();
-        playButtonTextureHover.dispose();
-        exitButtonTexture.dispose();
-        exitButtonTextureHover.dispose();
     }
 
     @Override
@@ -104,8 +115,8 @@ public class MainMenuScreen extends BaseScreen {
                 SequenceAction sequenceAction = new SequenceAction();
                 sequenceAction.addAction(Actions.delay(0.3f));
                 sequenceAction.addAction(Actions.run(() -> {
-                    //game.setScreen(new Level_1_1_Screen(game));
-                    game.setScreen(new Level_1_3_Screen(game));
+                    game.setScreen(new Level_1_1_Screen(game));
+                    //game.setScreen(new Level_1_3_Screen(game));
                     dispose();
                 }));
                 stage.addAction(sequenceAction);
@@ -132,5 +143,21 @@ public class MainMenuScreen extends BaseScreen {
         });
 
         return exitButton;
+    }
+
+    public Animation<TextureRegion> getAnimationSprite(int frameCols, int frameRows, Texture spriteSheet) {
+        int frameWidth = spriteSheet.getWidth() / frameCols;
+        int frameHeight = spriteSheet.getHeight() / frameRows;
+
+        TextureRegion[][] tmp = TextureRegion.split(spriteSheet, frameWidth, frameHeight);
+        TextureRegion[] keyFrames = new TextureRegion[frameCols * frameRows];
+        int index = 0;
+        for (int i = 0; i < frameRows; i++) {
+            for (int j = 0; j < frameCols; j++) {
+                keyFrames[index++] = tmp[i][j];
+            }
+        }
+
+        return new Animation<>(0.1f, keyFrames);
     }
 }

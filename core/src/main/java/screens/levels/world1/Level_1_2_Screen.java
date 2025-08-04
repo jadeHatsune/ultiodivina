@@ -13,6 +13,8 @@ import com.hod.ultiodivina.Main;
 import screens.VictoryScreen;
 import screens.levels.BaseLevel;
 
+import static classes.AssetDescriptors.*;
+
 public class Level_1_2_Screen extends BaseLevel {
 
 
@@ -56,30 +58,40 @@ public class Level_1_2_Screen extends BaseLevel {
 
     @Override
     public void setupLevelPlatforms() {
-        platforms.add(new PlatformGround(0,0));
+        platforms.add(new PlatformGround(0,0, assetManager.get(PLATFORM_GROUND, Texture.class)));
         float currentY = VERTICAL_SPACING;
-        platforms.add(new PlatformAerial(0, (int) currentY, "large"));
+        platforms.add(new PlatformAerial(0, (int) currentY, assetManager.get(PLATFORM_AERO_LARGE, Texture.class)));
         currentY += VERTICAL_SPACING;
-        platforms.add(new PlatformAerial(0, (int) currentY, "left"));
-        platforms.add(new PlatformAerial(AERIAL_PLATFORM_WIDTH * 2, (int) currentY, "right"));
+        platforms.add(new PlatformAerial(0, (int) currentY, assetManager.get(PLATFORM_AERO_LEFT, Texture.class)));
+        platforms.add(new PlatformAerial(AERIAL_PLATFORM_WIDTH * 2, (int) currentY, assetManager.get(PLATFORM_AERO_RIGHT, Texture.class)));
         currentY += VERTICAL_SPACING;
-        platforms.add(new PlatformAerial(0, (int) currentY, "left"));
-        platforms.add(new PlatformAerial(VIRTUAL_WIDTH - AERIAL_LONG_PLATFORM_WIDTH, (int) currentY, "large"));
+        platforms.add(new PlatformAerial(0, (int) currentY, assetManager.get(PLATFORM_AERO_LEFT, Texture.class)));
+        platforms.add(new PlatformAerial(VIRTUAL_WIDTH - AERIAL_LONG_PLATFORM_WIDTH, (int) currentY, assetManager.get(PLATFORM_AERO_LARGE, Texture.class)));
     }
 
     @Override
     public void setupLevelEnemies() {
-        enemies.add(new Slime(VIRTUAL_WIDTH - SLIME_WIDTH, PLATFORM_HEIGHT));
+        enemies.add(new Slime(VIRTUAL_WIDTH - SLIME_WIDTH, PLATFORM_HEIGHT,
+            getAnimationSprite(1, 7, assetManager.get(SLIME, Texture.class))));
         enemies.add(new FlyingMouth(FLYING_MOUTH_WIDTH,
-            (int) platforms.get(1).getBounds().getY() + PLATFORM_HEIGHT, EnemyFacing.FACING_RIGHT));
+            (int) platforms.get(1).getBounds().getY() + PLATFORM_HEIGHT, EnemyFacing.FACING_RIGHT,
+            getAnimationSprite(1, 4, assetManager.get(FLYING_MOUTH_MOVING, Texture.class)),
+            getAnimationSprite(1, 12, assetManager.get(FLYING_MOUTH_ATTACKING, Texture.class)),
+            getAnimationSprite(1, 4, assetManager.get(FLYING_MOUTH_PROJECTILE, Texture.class))));
         enemies.add(new FlyingMouth(VIRTUAL_WIDTH - FLYING_MOUTH_WIDTH,
-            (int) platforms.get(2).getBounds().getY() + FLYING_MOUTH_HEIGHT, EnemyFacing.FACING_LEFT));
+            (int) platforms.get(2).getBounds().getY() + FLYING_MOUTH_HEIGHT, EnemyFacing.FACING_LEFT,
+            getAnimationSprite(1, 4, assetManager.get(FLYING_MOUTH_MOVING, Texture.class)),
+            getAnimationSprite(1, 12, assetManager.get(FLYING_MOUTH_ATTACKING, Texture.class)),
+            getAnimationSprite(1, 4, assetManager.get(FLYING_MOUTH_PROJECTILE, Texture.class))));
         enemies.add(new Slime(SLIME_WIDTH,
-            (int) platforms.get(2).getBounds().getY() + PLATFORM_HEIGHT));
+            (int) platforms.get(2).getBounds().getY() + PLATFORM_HEIGHT,
+            getAnimationSprite(1, 7, assetManager.get(SLIME, Texture.class))));
         enemies.add(new Slime(SLIME_WIDTH,
-            (int) platforms.get(4).getBounds().getY() + PLATFORM_HEIGHT));
+            (int) platforms.get(4).getBounds().getY() + PLATFORM_HEIGHT,
+            getAnimationSprite(1, 7, assetManager.get(SLIME, Texture.class))));
         enemies.add(new Slime((int) platforms.get(5).getBounds().getX(),
-            (int) platforms.get(5).getBounds().getY() + PLATFORM_HEIGHT));
+            (int) platforms.get(5).getBounds().getY() + PLATFORM_HEIGHT,
+            getAnimationSprite(1, 7, assetManager.get(SLIME, Texture.class))));
     }
 
     @Override

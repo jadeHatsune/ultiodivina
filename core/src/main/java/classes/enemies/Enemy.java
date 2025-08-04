@@ -44,6 +44,7 @@ public abstract class Enemy {
     protected Animation<TextureRegion> animationIdle;
     protected Animation<TextureRegion> animationWalking;
     protected Animation<TextureRegion> animationAttack;
+    protected Animation<TextureRegion> projectileAnimation;
     protected int attackSpawnFrame;
 
 
@@ -131,21 +132,5 @@ public abstract class Enemy {
     }
 
     public abstract void draw(Batch batch);
-
-    public Animation<TextureRegion> getAnimationSprite(int frameCols, int frameRows, Texture spriteSheet) {
-        int frameWidth = spriteSheet.getWidth() / frameCols;
-        int frameHeight = spriteSheet.getHeight() / frameRows;
-
-        TextureRegion[][] tmp = TextureRegion.split(spriteSheet, frameWidth, frameHeight);
-        TextureRegion[] keyFrames = new TextureRegion[frameCols * frameRows];
-        int index = 0;
-        for (int i = 0; i < frameRows; i++) {
-            for (int j = 0; j < frameCols; j++) {
-                keyFrames[index++] = tmp[i][j];
-            }
-        }
-
-        return new Animation<>(0.1f, keyFrames);
-    }
 
 }

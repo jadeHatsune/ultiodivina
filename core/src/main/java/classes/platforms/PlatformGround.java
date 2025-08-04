@@ -10,11 +10,9 @@ public class PlatformGround extends Platform {
     //--- CONSTANTS ---
     private static final int GROUND_PLATFORM_DIF_Y = 15;
 
-    private final Texture sprite;
-
-    public PlatformGround(int x, int y) {
+    public PlatformGround(int x, int y, Texture sprite) {
         super();
-        this.sprite = assetManager.get("platforms/plataformaTierra.png");
+        this.sprite = sprite;
         this.bounds = new Rectangle(x, y, sprite.getWidth(), sprite.getHeight() - GROUND_PLATFORM_DIF_Y);
     }
 

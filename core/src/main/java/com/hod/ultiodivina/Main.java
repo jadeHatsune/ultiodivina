@@ -13,7 +13,6 @@ public class Main extends Game {
 
     @Override
     public void create() {
-        this.player = new Player(0, 0);
         assetManager = new AssetManager();
         setScreen(new LoadingScreen(this));
     }

@@ -6,6 +6,7 @@ import classes.enemies.EnemyState;
 import classes.platforms.Platform;
 import classes.projectiles.enemies_projectiles.ProjectileFlyingMouth;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
@@ -21,15 +22,16 @@ public class FlyingMouth extends Enemy {
     private static final float FLYING_MOUTH_SPEED = 100f;
     private static final float FLYING_MOUTH_GRAVITY = 0;
 
-    public FlyingMouth(int x, int y, EnemyFacing startFacing) {
+    public FlyingMouth(int x, int y, EnemyFacing startFacing, Animation<TextureRegion> animationWalking, Animation<TextureRegion> animationAttack, Animation<TextureRegion> projectileAnimation) {
         super(FLYING_MOUTH_LIFE, FLYING_MOUTH_SCORE);
 
         this.gravity = FLYING_MOUTH_GRAVITY;
         this.damage = FLYING_MOUTH_DAMAGE;
         this.currentFacing = startFacing;
 
-        this.animationWalking = getAnimationSprite(1, 4, assetManager.get("enemies/flyingmouth/bocaConOjo_Movimiento-Sheet.png"));
-        this.animationAttack = getAnimationSprite(1, 12, assetManager.get("enemies/flyingmouth/bocaConOjo_Expulsion-Sheet.png"));
+        this.animationWalking = animationWalking;
+        this.animationAttack = animationAttack;
+        this.projectileAnimation = projectileAnimation;
         this.attackSpawnFrame = 7;
 
         TextureRegion firstFrame = animationWalking.getKeyFrame(0);
@@ -95,7 +97,7 @@ public class FlyingMouth extends Enemy {
         if(this.currentFacing == EnemyFacing.FACING_LEFT) {
             projectileSpeed = -500f;
         }
-        return new ProjectileFlyingMouth((int) startX, (int) startY, projectileSpeed);
+        return new ProjectileFlyingMouth((int) startX, (int) startY, projectileSpeed, projectileAnimation);
     }
 
     @Override

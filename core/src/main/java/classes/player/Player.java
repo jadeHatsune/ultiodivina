@@ -3,15 +3,12 @@ package classes.player;
 import classes.platforms.Platform;
 import classes.projectiles.player_projectiles.ProjectileBase;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
-import com.hod.ultiodivina.Main;
 
 public class Player {
 
@@ -41,6 +38,7 @@ public class Player {
     private final Animation<TextureRegion> animationJumping;
     private final Animation<TextureRegion> animationDie;
     private final Animation<TextureRegion> animationAttack;
+    private final Animation<TextureRegion> projectileAnimation;
     private float stateTime;
 
     //-- PROPERTIES --
@@ -51,7 +49,9 @@ public class Player {
     private int invincibilityTimer;
 
     //--- CONSTRUCTOR ---
-    public Player(int x, int y) {
+    public Player(int x, int y, Animation<TextureRegion> animationIdle, Animation<TextureRegion> animationWalking,
+                  Animation<TextureRegion> animationJumping, Animation<TextureRegion> animationDie, Animation<TextureRegion> animationAttack,
+                  Animation<TextureRegion> projectileAnimation, Sound playerDamageSound, Sound jumpSound) {
         this.life = 3;
         this.currentState = PlayerState.IDLE;
         this.currentFacing = PlayerFacing.FACING_RIGHT;
@@ -59,18 +59,18 @@ public class Player {
         this.isOnGround = true;
         this.stateTime = 0f;
 
-        playerDamageSound = Gdx.audio.newSound(Gdx.files.internal("sounds/effects/efectoDamagePlayer.ogg"));
-        jumpSound = Gdx.audio.newSound(Gdx.files.internal("sounds/effects/efectoSaltar.ogg"));
+        this.playerDamageSound = playerDamageSound;
+        this.jumpSound = jumpSound;
 
         this.projectileSpawnedInThisAttack = false;
         this.shouldSpawnProjectile = false;
 
-        AssetManager assetManager = Main.assetManager;
-        animationIdle = getAnimationSprite(1, 7, assetManager.get("lymhiel/lymhiel_idle.png"));
-        animationWalking = getAnimationSprite(1, 6, assetManager.get("lymhiel/lymhiel_walking.png"));
-        animationJumping = getAnimationSprite(1, 6, assetManager.get("lymhiel/lymhiel_jumping.png"));
-        animationDie = getAnimationSprite(1, 10, assetManager.get("lymhiel/lymhiel_die.png"));
-        animationAttack = getAnimationSprite(1, 6, assetManager.get("lymhiel/lymhiel_attack.png"));
+        this.animationIdle = animationIdle;
+        this.animationWalking = animationWalking;
+        this.animationJumping = animationJumping;
+        this.animationDie = animationDie;
+        this.animationAttack = animationAttack;
+        this.projectileAnimation = projectileAnimation;
 
         TextureRegion firstFrame = animationIdle.getKeyFrame(0);
         this.bounds = new Rectangle(x, y, firstFrame.getRegionWidth(), firstFrame.getRegionHeight());
@@ -207,7 +207,7 @@ public class Player {
         if(this.currentFacing == PlayerFacing.FACING_LEFT) {
             projectileSpeed = -500f;
         }
-        return new ProjectileBase((int) startX, (int) startY, projectileSpeed);
+        return new ProjectileBase((int) startX, (int) startY, projectileSpeed, projectileAnimation);
     }
 
     //--- STATES ---
@@ -312,21 +312,4 @@ public class Player {
                 return animationIdle;
         }
     }
-
-    public Animation<TextureRegion> getAnimationSprite(int frameCols, int frameRows, Texture spriteSheet) {
-        int frameWidth = spriteSheet.getWidth() / frameCols;
-        int frameHeight = spriteSheet.getHeight() / frameRows;
-
-        TextureRegion[][] tmp = TextureRegion.split(spriteSheet, frameWidth, frameHeight);
-        TextureRegion[] keyFrames = new TextureRegion[frameCols * frameRows];
-        int index = 0;
-        for (int i = 0; i < frameRows; i++) {
-            for (int j = 0; j < frameCols; j++) {
-                keyFrames[index++] = tmp[i][j];
-            }
-        }
-
-        return new Animation<>(0.1f, keyFrames);
-    }
-
 }

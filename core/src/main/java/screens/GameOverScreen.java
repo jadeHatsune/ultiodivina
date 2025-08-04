@@ -1,7 +1,7 @@
 package screens;
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -15,6 +15,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.ScreenUtils;
 import screens.levels.world1.Level_1_1_Screen;
+
+import static classes.AssetDescriptors.*;
 
 public class GameOverScreen extends BaseScreen {
 
@@ -31,15 +33,15 @@ public class GameOverScreen extends BaseScreen {
     public void show(){
         super.show();
 
-        this.backgroundMusic = assetManager.get("sounds/music/gameOverSong.ogg");
+        this.backgroundMusic = assetManager.get(GAME_OVER_SONG, Music.class);
         this.backgroundMusic.setLooping(true);
         this.backgroundMusic.setVolume(0.5f);
         this.backgroundMusic.play();
 
-        this.buttonRestartTexture = assetManager.get("buttons/botonReintentar.png");
-        this.buttonRestartHoverTexture = assetManager.get("buttons/botonReintentar2.png");
-        this.buttonReturnTexture = assetManager.get("buttons/botonVolver.png");
-        this.buttonReturnHoverTexture = assetManager.get("buttons/botonVolver2.png");
+        this.buttonRestartTexture = assetManager.get(BTN_RESTART, Texture.class);
+        this.buttonRestartHoverTexture = assetManager.get(BTN_RESTART_HOVER, Texture.class);
+        this.buttonReturnTexture = assetManager.get(BTN_BACK, Texture.class);
+        this.buttonReturnHoverTexture = assetManager.get(BTN_BACK_HOVER, Texture.class);
 
         createGameOverTable();
     }
@@ -55,10 +57,6 @@ public class GameOverScreen extends BaseScreen {
     @Override
     public void dispose(){
         super.dispose();
-        buttonRestartTexture.dispose();
-        buttonRestartHoverTexture.dispose();
-        buttonReturnTexture.dispose();
-        buttonReturnHoverTexture.dispose();
     }
 
     @Override

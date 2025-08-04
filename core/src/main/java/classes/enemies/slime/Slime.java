@@ -3,6 +3,7 @@ package classes.enemies.slime;
 import classes.enemies.Enemy;
 import classes.enemies.EnemyFacing;
 import classes.platforms.Platform;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
@@ -23,13 +24,13 @@ public class Slime extends Enemy {
     //-- Animations --
     private final TextureRegion frameIdle;
 
-    public Slime(int x, int y) {
+    public Slime(int x, int y, Animation<TextureRegion> animationWalking) {
         super(SLIME_LIFE, SLIME_SCORE);
 
         this.gravity = SLIME_GRAVITY;
         this.damage = SLIME_DAMAGE;
 
-        this.animationWalking = getAnimationSprite(1, 7, assetManager.get("enemies/slime/slime.png"));
+        this.animationWalking = animationWalking;
         this.frameIdle = animationWalking.getKeyFrame(0);
 
         this.bounds = new Rectangle(x, y, frameIdle.getRegionWidth(), frameIdle.getRegionHeight());

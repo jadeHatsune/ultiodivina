@@ -40,6 +40,8 @@ import screens.levels.world1.Level_1_1_Screen;
 
 import java.util.Iterator;
 
+import static classes.AssetDescriptors.*;
+
 public abstract class BaseLevel extends BaseScreen {
 
     //-- Constants --
@@ -102,15 +104,15 @@ public abstract class BaseLevel extends BaseScreen {
         this.currentState = GameState.RUNNING;
 
         //--- SOUNDS CONFIGURATION ---
-        this.projectileSound = assetManager.get("sounds/effects/efectoProyectil.ogg", Sound.class);
+        this.projectileSound = assetManager.get(SOUND_PROJECTILE, Sound.class);
 
         //--- PAUSE UI CONFIGURATION ---
-        continueButtonTexture = assetManager.get("buttons/botonContinuar.png", Texture.class);
-        continueButtonHoverTexture = assetManager.get("buttons/botonContinuar2.png");
-        restartButtonTexture = assetManager.get("buttons/botonReintentar.png");
-        restartButtonHoverTexture = assetManager.get("buttons/botonReintentar2.png");
-        returnMenuButtonTexture = assetManager.get("buttons/botonVolver.png");
-        returnMenuButtonHoverTexture = assetManager.get("buttons/botonVolver2.png");
+        continueButtonTexture = assetManager.get(BTN_CONTINUE, Texture.class);
+        continueButtonHoverTexture = assetManager.get(BTN_CONTINUE_HOVER, Texture.class);
+        restartButtonTexture = assetManager.get(BTN_RESTART, Texture.class);
+        restartButtonHoverTexture = assetManager.get(BTN_RESTART_HOVER, Texture.class);
+        returnMenuButtonTexture = assetManager.get(BTN_BACK, Texture.class);
+        returnMenuButtonHoverTexture = assetManager.get(BTN_BACK_HOVER, Texture.class);
 
         //--- HUD CONFIGURATION ---
         this.lifeSprites = new Array<>();
@@ -118,10 +120,10 @@ public abstract class BaseLevel extends BaseScreen {
         this.hudCamera = new OrthographicCamera();
         this.hudCamera.setToOrtho(false, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
         this.displayScore = 0;
-        this.animationLifeEnds = getAnimationSprite(1, 10, assetManager.get("hud/caliz0Vidas.png"));
-        this.lifeSprites.add(assetManager.get("hud/caliz1Vidas.png"));
-        this.lifeSprites.add(assetManager.get("hud/caliz2Vidas.png"));
-        this. lifeSprites.add(assetManager.get("hud/caliz3Vidas.png"));
+        this.animationLifeEnds = getAnimationSprite(1, 10, assetManager.get(CHALICE_LIFE_0, Texture.class));
+        this.lifeSprites.add(assetManager.get(CHALICE_LIFE_1, Texture.class));
+        this.lifeSprites.add(assetManager.get(CHALICE_LIFE_2, Texture.class));
+        this. lifeSprites.add(assetManager.get(CHALICE_LIFE_3, Texture.class));
 
         uiViewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, hudCamera);
 
@@ -177,10 +179,6 @@ public abstract class BaseLevel extends BaseScreen {
     @Override
     public void dispose(){
         super.dispose();
-        this.backgroundTexture.dispose();
-        for (Texture t : lifeSprites) {
-            t.dispose();
-        }
     }
 
     @Override

@@ -17,6 +17,8 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.hod.ultiodivina.Main;
 
+import static classes.AssetDescriptors.*;
+
 public abstract class BaseScreen implements Screen {
 
     //--- Virtual Resolution ---
@@ -46,7 +48,7 @@ public abstract class BaseScreen implements Screen {
         this.font = generator.generateFont(parameter);
         generator.dispose();
 
-        this.buttonSound = assetManager.get("sounds/effects/efectoBotones.ogg");
+        this.buttonSound = assetManager.get(SOUND_BUTTON, Sound.class);
 
         this.camera = new OrthographicCamera();
         this.viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
@@ -81,8 +83,6 @@ public abstract class BaseScreen implements Screen {
         font.dispose();
         batch.dispose();
         stage.dispose();
-        backgroundMusic.dispose();
-        buttonSound.dispose();
     }
     @Override
     public void hide() {

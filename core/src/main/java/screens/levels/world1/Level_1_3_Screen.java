@@ -9,6 +9,8 @@ import com.hod.ultiodivina.Main;
 import screens.VictoryScreen;
 import screens.levels.BaseLevel;
 
+import static classes.AssetDescriptors.PLATFORM_GROUND;
+
 public class Level_1_3_Screen extends BaseLevel {
 
     //--- LEVEL ATTRIBUTES ---
@@ -54,9 +56,9 @@ public class Level_1_3_Screen extends BaseLevel {
 
     @Override
     public void setupLevelPlatforms() {
-        platforms.add(new PlatformGround(0,0));
-        platforms.add(new PlatformGround(800,0));
-        platforms.add(new PlatformGround(1600,0));
+        platforms.add(new PlatformGround(0,0, assetManager.get(PLATFORM_GROUND, Texture.class)));
+        platforms.add(new PlatformGround(800,0, assetManager.get(PLATFORM_GROUND, Texture.class)));
+        platforms.add(new PlatformGround(1600,0, assetManager.get(PLATFORM_GROUND, Texture.class)));
     }
 
     @Override

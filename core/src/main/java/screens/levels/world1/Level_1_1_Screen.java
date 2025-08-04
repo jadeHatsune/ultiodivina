@@ -7,11 +7,12 @@ import classes.platforms.PlatformAerial;
 import classes.platforms.PlatformGround;
 import classes.player.PlayerState;
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.hod.ultiodivina.Main;
 import screens.VictoryScreen;
 import screens.levels.BaseLevel;
+
+import static classes.AssetDescriptors.*;
 
 public class Level_1_1_Screen extends BaseLevel {
 
@@ -59,22 +60,22 @@ public class Level_1_1_Screen extends BaseLevel {
     @Override
     public void setupLevelPlatforms() {
 
-        platforms.add(new PlatformGround(0, 0));
+        platforms.add(new PlatformGround(0, 0, assetManager.get(PLATFORM_GROUND, Texture.class)));
         float currentY = VERTICAL_SPACING;
-        platforms.add(new PlatformAerial(0, (int) currentY, "large"));
-        platforms.add(new PlatformAerial(VIRTUAL_WIDTH - AERIAL_LONG_PLATFORM_WIDTH, (int) currentY, "large"));
+        platforms.add(new PlatformAerial(0, (int) currentY, assetManager.get(PLATFORM_AERO_LEFT, Texture.class)));
+        platforms.add(new PlatformAerial(VIRTUAL_WIDTH - AERIAL_LONG_PLATFORM_WIDTH, (int) currentY, assetManager.get(PLATFORM_AERO_RIGHT, Texture.class)));
         currentY += VERTICAL_SPACING;
-        platforms.add(new PlatformAerial(0, (int) currentY, "left"));
-        platforms.add(new PlatformAerial(VIRTUAL_WIDTH - AERIAL_PLATFORM_WIDTH, (int) currentY, "right"));
+        platforms.add(new PlatformAerial(0, (int) currentY, assetManager.get(PLATFORM_AERO_LEFT, Texture.class)));
+        platforms.add(new PlatformAerial(VIRTUAL_WIDTH - AERIAL_PLATFORM_WIDTH, (int) currentY, assetManager.get(PLATFORM_AERO_RIGHT, Texture.class)));
         currentY += VERTICAL_SPACING;
-        platforms.add(new PlatformAerial((VIRTUAL_WIDTH / 2) - (AERIAL_LONG_PLATFORM_WIDTH / 2), (int) currentY, "large"));
+        platforms.add(new PlatformAerial((VIRTUAL_WIDTH / 2) - (AERIAL_LONG_PLATFORM_WIDTH / 2), (int) currentY, assetManager.get(PLATFORM_AERO_LARGE, Texture.class)));
 
     }
 
     @Override
     public void setupLevelEnemies(){
         for(Platform platform : platforms) {
-            enemies.add(new Slime((int) (platform.getBounds().getX() + platform.getBounds().getWidth() - SLIME_WIDTH), (int) platform.getBounds().getY() + PLATFORM_HEIGHT));
+            enemies.add(new Slime((int) (platform.getBounds().getX() + platform.getBounds().getWidth() - SLIME_WIDTH), (int) platform.getBounds().getY() + PLATFORM_HEIGHT, getAnimationSprite(1, 7, assetManager.get(SLIME, Texture.class))));
         }
     }
 

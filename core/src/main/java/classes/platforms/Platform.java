@@ -1,6 +1,7 @@
 package classes.platforms;
 
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Rectangle;
 import com.hod.ultiodivina.Main;
@@ -8,11 +9,9 @@ import com.hod.ultiodivina.Main;
 
 public abstract class Platform {
     protected Rectangle bounds;
-    protected AssetManager assetManager;
+    protected Texture sprite;
 
-    public Platform() {
-        this.assetManager = Main.assetManager;
-    }
+    public Platform() {  }
 
     public Rectangle getBounds() {
         return bounds;
