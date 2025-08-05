@@ -1,6 +1,6 @@
 package screens.levels.world1;
 
-import classes.InputHandler;
+import classes.Inputs.InputHandler;
 import classes.enemies.slime.Slime;
 import classes.platforms.Platform;
 import classes.platforms.PlatformAerial;

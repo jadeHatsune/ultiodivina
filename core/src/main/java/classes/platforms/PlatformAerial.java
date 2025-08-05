@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Rectangle;
 
-public class PlatformAerial extends Platform{
+public class PlatformAerial extends Platform {
 
     //--- CONSTANTS ---
     private static final int AERIAL_PLATFORM_DIF_Y = 31;

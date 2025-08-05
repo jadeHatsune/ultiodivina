@@ -2,6 +2,7 @@ package screens;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -20,10 +21,10 @@ import static classes.AssetDescriptors.*;
 
 public class GameOverScreen extends BaseScreen {
 
-    private Texture buttonRestartTexture;
-    private Texture buttonRestartHoverTexture;
-    private Texture buttonReturnTexture;
-    private Texture buttonReturnHoverTexture;
+    Button btnRestart, btnReturn;
+
+    private TextureRegionDrawable restartUp, restartOver;
+    private TextureRegionDrawable returnUp, returnOver;
 
     public GameOverScreen(Game game) {
         super(game);
@@ -38,10 +39,10 @@ public class GameOverScreen extends BaseScreen {
         this.backgroundMusic.setVolume(0.5f);
         this.backgroundMusic.play();
 
-        this.buttonRestartTexture = assetManager.get(BTN_RESTART, Texture.class);
-        this.buttonRestartHoverTexture = assetManager.get(BTN_RESTART_HOVER, Texture.class);
-        this.buttonReturnTexture = assetManager.get(BTN_BACK, Texture.class);
-        this.buttonReturnHoverTexture = assetManager.get(BTN_BACK_HOVER, Texture.class);
+        this.restartUp = new TextureRegionDrawable(assetManager.get(BTN_RESTART, Texture.class));
+        this.restartOver = new TextureRegionDrawable(assetManager.get(BTN_RESTART_HOVER, Texture.class));
+        this.returnUp = new TextureRegionDrawable(assetManager.get(BTN_BACK, Texture.class));
+        this.returnOver = new TextureRegionDrawable(assetManager.get(BTN_BACK_HOVER, Texture.class));
 
         createGameOverTable();
     }
@@ -49,6 +50,14 @@ public class GameOverScreen extends BaseScreen {
     @Override
     public void render(float delta){
         super.render(delta);
+
+        if(Controllers.getControllers().size > 0) {
+            gamepadMenuController.update();
+            updateButtonFocus();
+        } else {
+            resetButtonStyles();
+        }
+
         ScreenUtils.clear(0, 0, 0, 1);
         stage.act(delta);
         stage.draw();
@@ -77,18 +86,21 @@ public class GameOverScreen extends BaseScreen {
         Label gameOverLabel = new Label("Fin del juego", labelStyle);
 
         Button.ButtonStyle restartStyle = new Button.ButtonStyle();
-        restartStyle.up = new TextureRegionDrawable(buttonRestartTexture);
-        restartStyle.over = new TextureRegionDrawable(buttonRestartHoverTexture);
-        Button restartButton = getRestartButton(restartStyle);
+        restartStyle.up = restartUp;
+        restartStyle.over = restartOver;
+        btnRestart = getRestartButton(restartStyle);
 
         Button.ButtonStyle returnStyle = new Button.ButtonStyle();
-        returnStyle.up = new TextureRegionDrawable(buttonReturnTexture);
-        returnStyle.over = new TextureRegionDrawable(buttonReturnHoverTexture);
-        Button returnButton = getReturnButton(returnStyle);
+        returnStyle.up = returnUp;
+        returnStyle.over = returnOver;
+        btnReturn = getReturnButton(returnStyle);
+
+        menuButtons.add(btnRestart);
+        menuButtons.add(btnReturn);
 
         gameOverTable.add(gameOverLabel).padBottom(40).row();
-        gameOverTable.add(restartButton).padBottom(10).row();
-        gameOverTable.add(returnButton).padBottom(10).row();
+        gameOverTable.add(btnRestart).padBottom(10).row();
+        gameOverTable.add(btnReturn).padBottom(10).row();
 
         gameOverTable.setVisible(true);
 
@@ -127,6 +139,28 @@ public class GameOverScreen extends BaseScreen {
             }
         });
         return returnButton;
+    }
+
+    private void updateButtonFocus(){
+        int selectedIndex = gamepadMenuController.getSelectedIndex();
+
+        if(selectedIndex == 0) {
+            btnRestart.getStyle().up = restartOver;
+        } else {
+            btnRestart.getStyle().up = restartUp;
+        }
+
+        if(selectedIndex == 1) {
+            btnReturn.getStyle().up = returnOver;
+        } else {
+            btnReturn.getStyle().up = returnUp;
+        }
+
+    }
+
+    private void resetButtonStyles(){
+        btnRestart.getStyle().up = restartUp;
+        btnReturn.getStyle().up = returnUp;
     }
 
 }

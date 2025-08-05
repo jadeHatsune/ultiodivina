@@ -1,21 +1,27 @@
 package screens;
 
+import classes.Inputs.GamepadMenuController;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.controllers.Controller;
+import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.hod.ultiodivina.Main;
+
+import java.util.ArrayList;
 
 import static classes.AssetDescriptors.*;
 
@@ -38,6 +44,11 @@ public abstract class BaseScreen implements Screen {
     protected Music backgroundMusic;
     protected Sound buttonSound;
 
+    //--- GAMEPAD ---
+    protected GamepadMenuController gamepadMenuController;
+    protected ArrayList<Button> menuButtons;
+    protected Controller controller;
+
     public BaseScreen(Game game) {
         this.game = game;
         this.assetManager = ((Main) game).assetManager;
@@ -47,6 +58,10 @@ public abstract class BaseScreen implements Screen {
         parameter.color = Color.WHITE;
         this.font = generator.generateFont(parameter);
         generator.dispose();
+
+        this.menuButtons = new ArrayList<>();
+        this.gamepadMenuController = new GamepadMenuController(menuButtons);
+        this.controller = Controllers.getCurrent();
 
         this.buttonSound = assetManager.get(SOUND_BUTTON, Sound.class);
 

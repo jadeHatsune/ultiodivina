@@ -1,6 +1,6 @@
 package screens.levels;
 
-import classes.InputHandler;
+import classes.Inputs.InputHandler;
 import classes.enemies.Enemy;
 import classes.effects.FloatingScore;
 import classes.enemies.EnemyState;
@@ -13,6 +13,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -38,6 +39,7 @@ import screens.GameOverScreen;
 import screens.MainMenuScreen;
 import screens.levels.world1.Level_1_1_Screen;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import static classes.AssetDescriptors.*;
@@ -64,12 +66,10 @@ public abstract class BaseLevel extends BaseScreen {
 
     //--- Pause UI ---
     protected Table pauseTable;
-    protected Texture continueButtonTexture;
-    protected Texture continueButtonHoverTexture;
-    protected Texture restartButtonTexture;
-    protected Texture restartButtonHoverTexture;
-    protected Texture returnMenuButtonTexture;
-    protected Texture returnMenuButtonHoverTexture;
+    protected Button btnContinue, btnRestart, btnReturn;
+    protected TextureRegionDrawable continueUp, continueOver;
+    protected TextureRegionDrawable restartUp, restartOver;
+    protected TextureRegionDrawable returnUp, returnOver;
     protected Viewport uiViewport;
 
     //--- Entities ---
@@ -107,12 +107,12 @@ public abstract class BaseLevel extends BaseScreen {
         this.projectileSound = assetManager.get(SOUND_PROJECTILE, Sound.class);
 
         //--- PAUSE UI CONFIGURATION ---
-        continueButtonTexture = assetManager.get(BTN_CONTINUE, Texture.class);
-        continueButtonHoverTexture = assetManager.get(BTN_CONTINUE_HOVER, Texture.class);
-        restartButtonTexture = assetManager.get(BTN_RESTART, Texture.class);
-        restartButtonHoverTexture = assetManager.get(BTN_RESTART_HOVER, Texture.class);
-        returnMenuButtonTexture = assetManager.get(BTN_BACK, Texture.class);
-        returnMenuButtonHoverTexture = assetManager.get(BTN_BACK_HOVER, Texture.class);
+        continueUp = new TextureRegionDrawable(assetManager.get(BTN_CONTINUE, Texture.class));
+        continueOver = new TextureRegionDrawable(assetManager.get(BTN_CONTINUE_HOVER, Texture.class));
+        restartUp = new TextureRegionDrawable(assetManager.get(BTN_RESTART, Texture.class));
+        restartOver = new TextureRegionDrawable(assetManager.get(BTN_RESTART_HOVER, Texture.class));
+        returnUp = new TextureRegionDrawable(assetManager.get(BTN_BACK, Texture.class));
+        returnOver = new TextureRegionDrawable(assetManager.get(BTN_BACK_HOVER, Texture.class));
 
         //--- HUD CONFIGURATION ---
         this.lifeSprites = new Array<>();
@@ -145,9 +145,16 @@ public abstract class BaseLevel extends BaseScreen {
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             togglePause();
         }
+        gamepadMenuController.wantsToPause();
 
         if(currentState == GameState.PAUSED){
             backgroundMusic.setVolume(0.2f);
+            if(Controllers.getControllers().size > 0) {
+                gamepadMenuController.update();
+                updateButtonFocus();
+            } else {
+                resetButtonStyles();
+            }
         } else {
             backgroundMusic.setVolume(0.5f);
         }
@@ -343,27 +350,31 @@ public abstract class BaseLevel extends BaseScreen {
 
         //--- Continue Button ---
         Button.ButtonStyle continueStyle = new Button.ButtonStyle();
-        continueStyle.up = new TextureRegionDrawable(continueButtonTexture);
-        continueStyle.over = new TextureRegionDrawable(continueButtonHoverTexture);
-        Button continueButton = getContinueButton(continueStyle);
+        continueStyle.up = continueUp;
+        continueStyle.over = continueOver;
+        btnContinue = getContinueButton(continueStyle);
 
         //--- Restart Button ---
         Button.ButtonStyle restartStyle = new Button.ButtonStyle();
-        restartStyle.up = new TextureRegionDrawable(restartButtonTexture);
-        restartStyle.over = new TextureRegionDrawable(restartButtonHoverTexture);
-        Button restartButton = getRestartButton(restartStyle);
+        restartStyle.up = restartUp;
+        restartStyle.over = restartOver;
+        btnRestart = getRestartButton(restartStyle);
 
         //--- Return Main Manu Button ---
         Button.ButtonStyle returnStyle = new Button.ButtonStyle();
-        returnStyle.up = new TextureRegionDrawable(returnMenuButtonTexture);
-        returnStyle.over = new TextureRegionDrawable(returnMenuButtonHoverTexture);
-        Button returnButton = getReturnButton(returnStyle);
+        returnStyle.up = returnUp;
+        returnStyle.over = returnOver;
+        btnReturn = getReturnButton(returnStyle);
+
+        menuButtons.add(btnContinue);
+        menuButtons.add(btnRestart);
+        menuButtons.add(btnReturn);
 
         //--- Add Buttons to the table ---
         pauseTable.add(pauseLabel).padBottom(40).row();
-        pauseTable.add(continueButton).padBottom(10).row();
-        pauseTable.add(restartButton).padBottom(10).row();
-        pauseTable.add(returnButton).padBottom(10).row();
+        pauseTable.add(btnContinue).padBottom(10).row();
+        pauseTable.add(btnRestart).padBottom(10).row();
+        pauseTable.add(btnReturn).padBottom(10).row();
 
         pauseTable.setVisible(false);
 
@@ -420,6 +431,35 @@ public abstract class BaseLevel extends BaseScreen {
         return returnButton;
     }
 
+    private void updateButtonFocus(){
+        int selectedIndex = gamepadMenuController.getSelectedIndex();
+
+        if(selectedIndex == 0) {
+            btnContinue.getStyle().up = continueOver;
+        } else {
+            btnContinue.getStyle().up = continueUp;
+        }
+
+        if(selectedIndex == 1) {
+            btnRestart.getStyle().up = restartOver;
+        } else {
+            btnRestart.getStyle().up = restartUp;
+        }
+
+        if(selectedIndex == 2) {
+            btnReturn.getStyle().up = returnOver;
+        } else {
+            btnReturn.getStyle().up = returnUp;
+        }
+
+    }
+
+    private void resetButtonStyles(){
+        btnContinue.getStyle().up = continueOver;
+        btnRestart.getStyle().up = restartUp;
+        btnReturn.getStyle().up = returnUp;
+    }
+
     public void togglePause() {
         if(currentState == GameState.RUNNING) {
             currentState = GameState.PAUSED;
@@ -429,6 +469,7 @@ public abstract class BaseLevel extends BaseScreen {
             pauseTable.setVisible(false);
         }
     }
+
 
     public Animation<TextureRegion> getAnimationSprite(int frameCols, int frameRows, Texture spriteSheet) {
         int frameWidth = spriteSheet.getWidth() / frameCols;

@@ -1,13 +1,12 @@
 package screens.levels.world1;
 
-import classes.InputHandler;
+import classes.Inputs.InputHandler;
 import classes.enemies.EnemyFacing;
 import classes.enemies.flyingmouth.FlyingMouth;
 import classes.enemies.slime.Slime;
 import classes.platforms.PlatformAerial;
 import classes.platforms.PlatformGround;
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.hod.ultiodivina.Main;
 import screens.VictoryScreen;

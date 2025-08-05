@@ -1,10 +1,12 @@
 package screens;
 
+import classes.Inputs.GamepadMenuController;
 import classes.player.Player;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -16,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.hod.ultiodivina.Main;
+import java.util.ArrayList;
 import screens.levels.world1.Level_1_1_Screen;
 import screens.levels.world1.Level_1_3_Screen;
 
@@ -23,11 +26,14 @@ import static classes.AssetDescriptors.*;
 
 public class MainMenuScreen extends BaseScreen {
 
+    //--- BUTTONS ---
+    Button playButton;
+    Button exitButton;
+
+    //--- TEXTURES ---
     private Texture backgroundTexture;
-    private Texture playButtonTexture;
-    private Texture playButtonTextureHover;
-    private Texture exitButtonTexture;
-    private Texture exitButtonTextureHover;
+    private TextureRegionDrawable playUp, playOver;
+    private TextureRegionDrawable exitUp, exitOver;
 
     public MainMenuScreen(Game game){
         super(game);
@@ -46,17 +52,17 @@ public class MainMenuScreen extends BaseScreen {
             assetManager.get(SOUND_DMG_PLAYER, Sound.class),
             assetManager.get(SOUND_JUMP, Sound.class));
 
-        backgroundMusic = assetManager.get(MAIN_MENU_SONG, Music.class);
-        backgroundMusic.setLooping(true);
-        backgroundMusic.setVolume(0.5f);
-        backgroundMusic.play();
+        playUp = new TextureRegionDrawable(assetManager.get(BTN_PLAY, Texture.class));
+        playOver = new TextureRegionDrawable(assetManager.get(BTN_PLAY_HOVER, Texture.class));
+        exitUp = new TextureRegionDrawable(assetManager.get(BTN_EXIT, Texture.class));
+        exitOver = new TextureRegionDrawable(assetManager.get(BTN_EXIT_HOVER, Texture.class));
 
-        backgroundTexture = assetManager.get(BG_MAIN_MENU, Texture.class);
+        this.backgroundMusic = assetManager.get(MAIN_MENU_SONG, Music.class);
+        this.backgroundMusic.setLooping(true);
+        this.backgroundMusic.setVolume(0.5f);
+        this.backgroundMusic.play();
 
-        playButtonTexture = assetManager.get(BTN_PLAY, Texture.class);
-        exitButtonTexture = assetManager.get(BTN_EXIT, Texture.class);
-        playButtonTextureHover = assetManager.get(BTN_PLAY_HOVER, Texture.class);
-        exitButtonTextureHover = assetManager.get(BTN_EXIT_HOVER, Texture.class);
+        this.backgroundTexture = assetManager.get(BG_MAIN_MENU, Texture.class);
 
         createMenuTable();
     }
@@ -64,6 +70,14 @@ public class MainMenuScreen extends BaseScreen {
     @Override
     public void render(float delta) {
         super.render(delta);
+
+        if(Controllers.getControllers().size > 0) {
+            gamepadMenuController.update();
+            updateButtonFocus();
+        } else {
+            resetButtonStyles();
+        }
+
         batch.begin();
         batch.draw(backgroundTexture, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
         batch.end();
@@ -86,16 +100,19 @@ public class MainMenuScreen extends BaseScreen {
         Table menuTable = new Table();
         menuTable.setFillParent(true);
         Button.ButtonStyle playStyle = new Button.ButtonStyle();
-        playStyle.up = new TextureRegionDrawable(playButtonTexture);
-        playStyle.over = new TextureRegionDrawable(playButtonTextureHover);
+        playStyle.up = playUp;
+        playStyle.over = playOver;
 
-        Button playButton = getPlayButton(playStyle);
+        playButton = getPlayButton(playStyle);
 
         Button.ButtonStyle exitStyle = new Button.ButtonStyle();
-        exitStyle.up = new TextureRegionDrawable(exitButtonTexture);
-        exitStyle.over = new TextureRegionDrawable(exitButtonTextureHover);
+        exitStyle.up = exitUp;
+        exitStyle.over = exitOver;
 
-        Button exitButton = getExitButton(exitStyle);
+        exitButton = getExitButton(exitStyle);
+
+        menuButtons.add(playButton);
+        menuButtons.add(exitButton);
 
         menuTable.add(playButton).padBottom(10).padTop(80).row();
         menuTable.add(exitButton).padBottom(10).row();
@@ -143,6 +160,28 @@ public class MainMenuScreen extends BaseScreen {
         });
 
         return exitButton;
+    }
+
+    private void updateButtonFocus(){
+        int selectedIndex = gamepadMenuController.getSelectedIndex();
+
+        if(selectedIndex == 0) {
+            playButton.getStyle().up = playOver;
+        } else {
+            playButton.getStyle().up = playUp;
+        }
+
+        if(selectedIndex == 1) {
+            exitButton.getStyle().up = exitOver;
+        } else {
+            exitButton.getStyle().up = exitUp;
+        }
+
+    }
+
+    private void resetButtonStyles(){
+        playButton.getStyle().up = playUp;
+        exitButton.getStyle().up = exitUp;
     }
 
     public Animation<TextureRegion> getAnimationSprite(int frameCols, int frameRows, Texture spriteSheet) {
