@@ -64,6 +64,7 @@ public abstract class BaseLevel extends BaseScreen {
     protected Texture backgroundTexture;
     protected float levelWidth;
     protected float levelHeight;
+    protected float parallaxFactor = 0.5f;
 
     //--- Pause UI ---
     protected Table pauseTable;
@@ -144,6 +145,7 @@ public abstract class BaseLevel extends BaseScreen {
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             togglePause();
         }
+
         gamepadMenuController.wantsToPause();
 
         if(currentState == GameState.PAUSED){
@@ -170,7 +172,13 @@ public abstract class BaseLevel extends BaseScreen {
 
         //--- Dibujado de juego ---
         batch.begin();
-        batch.draw(backgroundTexture, 0, 0, levelWidth, levelHeight);
+
+        float backgroundX = (camera.position.x - VIRTUAL_WIDTH / 2f) * parallaxFactor;
+        float backgroundY = (camera.position.y - VIRTUAL_HEIGHT / 2f) * parallaxFactor;
+
+        batch.draw(backgroundTexture, backgroundX, backgroundY,
+            backgroundTexture.getWidth(), backgroundTexture.getHeight());
+
         drawEntities(batch);
 
         //--- Dibujado de HUD ---
@@ -454,7 +462,7 @@ public abstract class BaseLevel extends BaseScreen {
     }
 
     private void resetButtonStyles(){
-        btnContinue.getStyle().up = continueOver;
+        btnContinue.getStyle().up = continueUp;
         btnRestart.getStyle().up = restartUp;
         btnReturn.getStyle().up = returnUp;
     }

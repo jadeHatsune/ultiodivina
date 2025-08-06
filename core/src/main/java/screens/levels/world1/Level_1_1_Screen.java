@@ -32,8 +32,8 @@ public class Level_1_1_Screen extends BaseLevel {
         this.player.setPlayerState(PlayerState.IDLE);
         this.spawnPointX = 64;
         this.spawnPointY = PLATFORM_HEIGHT;
-        this.backgroundTexture = assetManager.get("backgrounds/level1/nivel1-1.jpeg");
-        this.backgroundMusic = assetManager.get("sounds/music/world1BackgroundMusic.ogg");
+        this.backgroundTexture = assetManager.get(BG_LEVEL_1_1);
+        this.backgroundMusic = assetManager.get(WORLD1_SONG);
         this.backgroundMusic.setLooping(true);
         this.backgroundMusic.setVolume(0.5f);
         this.backgroundMusic.play();

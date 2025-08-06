@@ -30,8 +30,8 @@ public class Level_1_2_Screen extends BaseLevel {
         this.levelHeight = 600;
         this.spawnPointX = (int) (VIRTUAL_WIDTH - this.player.getBounds().getWidth());
         this.spawnPointY = PLATFORM_HEIGHT;
-        this.backgroundTexture = assetManager.get("backgrounds/level1/nivel1-2.png");
-        this.backgroundMusic = assetManager.get("sounds/music/world1BackgroundMusic.ogg");
+        this.backgroundTexture = assetManager.get(BG_LEVEL_1_2);
+        this.backgroundMusic = assetManager.get(WORLD1_SONG);
         this.backgroundMusic.setLooping(true);
         this.backgroundMusic.setVolume(0.5f);
         this.backgroundMusic.play();

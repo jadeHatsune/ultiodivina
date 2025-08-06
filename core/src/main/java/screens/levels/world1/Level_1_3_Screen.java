@@ -5,7 +5,6 @@ import classes.platforms.PlatformAerial;
 import classes.platforms.PlatformGround;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Texture;
-import com.hod.ultiodivina.Main;
 import screens.levels.BaseLevel;
 
 import static classes.AssetDescriptors.*;
@@ -28,8 +27,8 @@ public class Level_1_3_Screen extends BaseLevel {
         this.levelHeight = 1800;
         this.spawnPointX = 64;
         this.spawnPointY = PLATFORM_HEIGHT;
-        this.backgroundTexture = assetManager.get("backgrounds/level1/nivel1-3.png");
-        this.backgroundMusic = assetManager.get("sounds/music/bossWorld1BackgroundMusic.ogg");
+        this.backgroundTexture = assetManager.get(BG_LEVEL_1_3);
+        this.backgroundMusic = assetManager.get(BOSS1_SONG);
         this.backgroundMusic.setLooping(true);
         this.backgroundMusic.setVolume(0.5f);
         this.backgroundMusic.play();
@@ -42,9 +41,6 @@ public class Level_1_3_Screen extends BaseLevel {
     @Override
     public void render(float delta){
         super.render(delta);
-        if(enemies.isEmpty()){
-            //game.setScreen(new VictoryScreen(game, new Level_1_3_Screen(game)));
-        }
     }
 
     @Override
@@ -73,10 +69,15 @@ public class Level_1_3_Screen extends BaseLevel {
         platforms.add(new PlatformAerial(AERIAL_LONG_PLATFORM_WIDTH, (int) currentY, assetManager.get(PLATFORM_AERO_LARGE, Texture.class)));
         platforms.add(new PlatformAerial(AERIAL_LONG_PLATFORM_WIDTH*2, (int) currentY, assetManager.get(PLATFORM_AERO_LARGE, Texture.class)));
         platforms.add(new PlatformAerial(AERIAL_LONG_PLATFORM_WIDTH*3 + AERIAL_PLATFORM_WIDTH, (int) currentY, assetManager.get(PLATFORM_AERO_LEFT, Texture.class)));
+        platforms.add(new PlatformAerial((int) levelWidth - AERIAL_LONG_PLATFORM_WIDTH, (int) currentY, assetManager.get(PLATFORM_AERO_LARGE, Texture.class)));
+        platforms.add(new PlatformAerial((int) levelWidth - AERIAL_LONG_PLATFORM_WIDTH*2, (int) currentY, assetManager.get(PLATFORM_AERO_LARGE, Texture.class)));
         currentY += VERTICAL_SPACING;
         platforms.add(new PlatformAerial(0, (int) currentY, assetManager.get(PLATFORM_AERO_LARGE)));
         platforms.add(new PlatformAerial(AERIAL_LONG_PLATFORM_WIDTH, (int) currentY, assetManager.get(PLATFORM_AERO_LARGE)));
         platforms.add(new PlatformAerial(AERIAL_LONG_PLATFORM_WIDTH * 2, (int) currentY, assetManager.get(PLATFORM_AERO_LEFT)));
+        currentY += VERTICAL_SPACING;
+        platforms.add(new PlatformAerial(0, (int) currentY, assetManager.get(PLATFORM_AERO_LARGE, Texture.class)));
+        platforms.add(new PlatformAerial(AERIAL_LONG_PLATFORM_WIDTH, (int) currentY, assetManager.get(PLATFORM_AERO_LARGE, Texture.class)));
 
     }
 
