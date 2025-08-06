@@ -132,8 +132,8 @@ public class MainMenuScreen extends BaseScreen {
                 SequenceAction sequenceAction = new SequenceAction();
                 sequenceAction.addAction(Actions.delay(0.3f));
                 sequenceAction.addAction(Actions.run(() -> {
-                    game.setScreen(new Level_1_1_Screen(game));
-                    //game.setScreen(new Level_1_3_Screen(game));
+                    //game.setScreen(new Level_1_1_Screen(game));
+                    game.setScreen(new Level_1_3_Screen(game));
                     dispose();
                 }));
                 stage.addAction(sequenceAction);

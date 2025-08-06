@@ -22,7 +22,7 @@ public class LoadingScreen implements Screen {
     private final AssetManager assetManager;
     private SpriteBatch batch;
     private Texture backgroundLoading;
-    private Animation<TextureRegion> loadingAnimaton;
+    private Animation<TextureRegion> loadingAnimation;
     private float stateTime;
     private Viewport viewport;
     private OrthographicCamera camera;
@@ -40,7 +40,7 @@ public class LoadingScreen implements Screen {
         this.viewport = new FitViewport(800, 600, camera);
         this.backgroundLoading = new Texture(Gdx.files.internal("backgrounds/cargando.png"));
         Texture loadingSheet = new Texture(Gdx.files.internal("hud/loading-Sheet.png"));
-        this.loadingAnimaton = getAnimationSprite(1, 12, loadingSheet);
+        this.loadingAnimation = getAnimationSprite(1, 12, loadingSheet);
 
         //--- TEXTURES --- //
         //Backgrounds
@@ -65,12 +65,17 @@ public class LoadingScreen implements Screen {
         assetManager.load(FLYING_MOUTH_PROJECTILE, Texture.class);
         assetManager.load(SLIME, Texture.class);
         assetManager.load(TENTACLE_IDLE, Texture.class);
+        assetManager.load(TENTACLE_SPAWN, Texture.class);
+        assetManager.load(TENTACLE_ATTACK, Texture.class);
+        //Bosses
+        assetManager.load(LIFE_BAR_LOADING, Texture.class);
+        assetManager.load(LIFE_BAR, Texture.class);
         //HUD
         assetManager.load(CHALICE_LIFE_0, Texture.class);
         assetManager.load(CHALICE_LIFE_1, Texture.class);
         assetManager.load(CHALICE_LIFE_2, Texture.class);
         assetManager.load(CHALICE_LIFE_3, Texture.class);
-        //Lymhiel
+        //Player
         assetManager.load(PLAYER_ATTACK, Texture.class);
         assetManager.load(PLAYER_DIE, Texture.class);
         assetManager.load(PLAYER_IDLE, Texture.class);
@@ -93,8 +98,6 @@ public class LoadingScreen implements Screen {
         assetManager.load(MAIN_MENU_SONG, Music.class);
         assetManager.load(VICTORY_SONG, Music.class);
         assetManager.load(WORLD1_SONG, Music.class);
-
-
     }
 
     @Override
@@ -114,10 +117,9 @@ public class LoadingScreen implements Screen {
 
         stateTime += delta;
 
-        TextureRegion currentFrame = loadingAnimaton.getKeyFrame(stateTime, true);
+        TextureRegion currentFrame = loadingAnimation.getKeyFrame(stateTime, true);
         batch.draw(currentFrame, (float)(800 / 2 - currentFrame.getRegionWidth() / 2), (float)(600 / 2 - currentFrame.getRegionHeight() / 2),
             currentFrame.getRegionWidth(), currentFrame.getRegionHeight());
-
         batch.end();
 
     }

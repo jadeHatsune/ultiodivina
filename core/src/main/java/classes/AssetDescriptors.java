@@ -28,6 +28,12 @@ public final class AssetDescriptors {
     public static final String FLYING_MOUTH_PROJECTILE = "enemies/flyingmouth/Ojo_Proyectil-Sheet.png";
     public static final String SLIME = "enemies/slime/slime.png";
     public static final String TENTACLE_IDLE = "enemies/tentacle/tentaculo-Sheet.png";
+    public static final String TENTACLE_SPAWN = "enemies/tentacle/tentaculosSPAWN-Sheet.png";
+    public static final String TENTACLE_ATTACK = "enemies/tentacle/tentaculoPlacaje-Sheet.png";
+
+    //--- BOSSES ---
+    public static final String LIFE_BAR_LOADING = "enemies/bosses/BarraDeVidaCargando.png";
+    public static final String LIFE_BAR = "enemies/bosses/bossLifeBarSheet.png";
 
     //--- HUD ---
     public static final String CHALICE_LIFE_0 = "hud/caliz0Vidas.png";

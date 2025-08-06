@@ -34,6 +34,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.hod.ultiodivina.Main;
 import screens.BaseScreen;
 import screens.GameOverScreen;
 import screens.MainMenuScreen;
@@ -133,9 +134,7 @@ public abstract class BaseLevel extends BaseScreen {
         //--- PAUSE UI CONFIGURATION ---
         createPauseTable();
         setupLevelArrays();
-        setupLevelPlatforms();
-        setupLevelEnemies();
-        setupPlayer();
+        this.player = ((Main) game).player;
     }
 
     @Override

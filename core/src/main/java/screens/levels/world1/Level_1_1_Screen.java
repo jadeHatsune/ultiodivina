@@ -37,6 +37,10 @@ public class Level_1_1_Screen extends BaseLevel {
         this.backgroundMusic.setLooping(true);
         this.backgroundMusic.setVolume(0.5f);
         this.backgroundMusic.play();
+
+        setupLevelPlatforms();
+        setupLevelEnemies();
+        setupPlayer();
     }
 
     @Override
@@ -63,12 +67,12 @@ public class Level_1_1_Screen extends BaseLevel {
         platforms.add(new PlatformGround(0, 0, assetManager.get(PLATFORM_GROUND, Texture.class)));
         float currentY = VERTICAL_SPACING;
         platforms.add(new PlatformAerial(0, (int) currentY, assetManager.get(PLATFORM_AERO_LEFT, Texture.class)));
-        platforms.add(new PlatformAerial(VIRTUAL_WIDTH - AERIAL_LONG_PLATFORM_WIDTH, (int) currentY, assetManager.get(PLATFORM_AERO_RIGHT, Texture.class)));
+        platforms.add(new PlatformAerial((int) (levelWidth - AERIAL_PLATFORM_WIDTH), (int) currentY, assetManager.get(PLATFORM_AERO_RIGHT, Texture.class)));
         currentY += VERTICAL_SPACING;
         platforms.add(new PlatformAerial(0, (int) currentY, assetManager.get(PLATFORM_AERO_LEFT, Texture.class)));
-        platforms.add(new PlatformAerial(VIRTUAL_WIDTH - AERIAL_PLATFORM_WIDTH, (int) currentY, assetManager.get(PLATFORM_AERO_RIGHT, Texture.class)));
+        platforms.add(new PlatformAerial((int) (levelWidth - AERIAL_PLATFORM_WIDTH), (int) currentY, assetManager.get(PLATFORM_AERO_RIGHT, Texture.class)));
         currentY += VERTICAL_SPACING;
-        platforms.add(new PlatformAerial((VIRTUAL_WIDTH / 2) - (AERIAL_LONG_PLATFORM_WIDTH / 2), (int) currentY, assetManager.get(PLATFORM_AERO_LARGE, Texture.class)));
+        platforms.add(new PlatformAerial((int) ((levelWidth / 2) - (AERIAL_LONG_PLATFORM_WIDTH / 2)), (int) currentY, assetManager.get(PLATFORM_AERO_LARGE, Texture.class)));
 
     }
 
@@ -79,6 +83,7 @@ public class Level_1_1_Screen extends BaseLevel {
         }
     }
 
+    @Override
     public void setupPlayer(){
         this.player = ((Main) game).player;
         this.player.getBounds().setPosition(spawnPointX, spawnPointY);

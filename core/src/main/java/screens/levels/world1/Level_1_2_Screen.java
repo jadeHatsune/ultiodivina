@@ -35,6 +35,10 @@ public class Level_1_2_Screen extends BaseLevel {
         this.backgroundMusic.setLooping(true);
         this.backgroundMusic.setVolume(0.5f);
         this.backgroundMusic.play();
+
+        setupLevelPlatforms();
+        setupLevelEnemies();
+        setupPlayer();
     }
 
     @Override
@@ -95,7 +99,6 @@ public class Level_1_2_Screen extends BaseLevel {
 
     @Override
     public void setupPlayer() {
-        this.player = ((Main) game).player;
         this.player.getBounds().setPosition(spawnPointX, spawnPointY);
         this.inputHandler = new InputHandler(this.player);
     }
