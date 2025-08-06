@@ -75,6 +75,7 @@ public abstract class BaseScreen implements Screen {
     @Override
     public void show(){
         Gdx.input.setInputProcessor(stage);
+        Gdx.input.setCursorCatched(false);
     }
 
     @Override

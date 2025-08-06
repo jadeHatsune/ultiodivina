@@ -74,7 +74,7 @@ public class Level_1_2_Screen extends BaseLevel {
 
     @Override
     public void setupLevelEnemies() {
-        enemies.add(new Slime(VIRTUAL_WIDTH - SLIME_WIDTH, PLATFORM_HEIGHT,
+        enemies.add(new Slime(64, PLATFORM_HEIGHT,
             getAnimationSprite(1, 7, assetManager.get(SLIME, Texture.class))));
         enemies.add(new FlyingMouth(FLYING_MOUTH_WIDTH,
             (int) platforms.get(1).getBounds().getY() + PLATFORM_HEIGHT, EnemyFacing.FACING_RIGHT,

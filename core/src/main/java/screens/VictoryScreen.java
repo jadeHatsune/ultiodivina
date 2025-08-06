@@ -4,7 +4,6 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
@@ -21,7 +20,8 @@ import static classes.AssetDescriptors.*;
 
 public class VictoryScreen extends BaseScreen {
 
-    Button btnContinue, btnReturn;
+    private Texture background;
+    private Button btnContinue, btnReturn;
 
     private TextureRegionDrawable continueUp, continueOver;
     private TextureRegionDrawable returnUp, returnOver;
@@ -38,6 +38,7 @@ public class VictoryScreen extends BaseScreen {
     public void show() {
         super.show();
 
+        this.background = assetManager.get(BG_VICTORY, Texture.class);
         this.backgroundMusic = assetManager.get(VICTORY_SONG, Music.class);
         this.backgroundMusic.setLooping(false);
         this.backgroundMusic.setVolume(0.5f);
@@ -62,6 +63,13 @@ public class VictoryScreen extends BaseScreen {
         }
 
         ScreenUtils.clear(0, 0, 0, 1);
+
+        batch.begin();
+
+        batch.draw(background, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+
+        batch.end();
+
         stage.act(delta);
         stage.draw();
     }
@@ -79,11 +87,6 @@ public class VictoryScreen extends BaseScreen {
     public void createVictoryTable() {
         Table victoryTable = new Table();
         victoryTable.setFillParent(true);
-        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-        pixmap.setColor(new Color(0,0,0, 0.7f));
-        pixmap.fill();
-        victoryTable.setBackground(new TextureRegionDrawable(new Texture(pixmap)));
-        pixmap.dispose();
 
         Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.GREEN);
         Label gameOverLabel = new Label("Victoria", labelStyle);

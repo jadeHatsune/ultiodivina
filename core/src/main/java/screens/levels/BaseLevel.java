@@ -39,8 +39,6 @@ import screens.BaseScreen;
 import screens.GameOverScreen;
 import screens.MainMenuScreen;
 import screens.levels.world1.Level_1_1_Screen;
-
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import static classes.AssetDescriptors.*;
@@ -104,6 +102,7 @@ public abstract class BaseLevel extends BaseScreen {
         super.show();
 
         this.currentState = GameState.RUNNING;
+        Gdx.input.setCursorCatched(true);
 
         //--- SOUNDS CONFIGURATION ---
         this.projectileSound = assetManager.get(SOUND_PROJECTILE, Sound.class);
@@ -154,6 +153,7 @@ public abstract class BaseLevel extends BaseScreen {
                 gamepadMenuController.update();
                 updateButtonFocus();
             } else {
+                Gdx.input.setCursorCatched(false);
                 resetButtonStyles();
             }
         } else {
@@ -161,6 +161,7 @@ public abstract class BaseLevel extends BaseScreen {
         }
 
         if(currentState == GameState.RUNNING) {
+            Gdx.input.setCursorCatched(true);
             updateEntities(delta);
         }
 
@@ -318,6 +319,9 @@ public abstract class BaseLevel extends BaseScreen {
         for(Projectile projectile : enemiesProjectiles){
             projectile.draw(batch);
         }
+        for (FloatingScore score : floatingScores) {
+            score.draw(batch, font);
+        }
     }
 
     public void drawHUD(Batch batch, float delta){
@@ -337,10 +341,6 @@ public abstract class BaseLevel extends BaseScreen {
         float textX = (VIRTUAL_WIDTH - glyphLayout.width) / 2;
         float textY = (VIRTUAL_HEIGHT) * 0.95f;
         font.draw(batch, glyphLayout, textX, textY);
-
-        for (FloatingScore score : floatingScores) {
-            score.draw(batch, font);
-        }
     }
 
     public void createPauseTable() {

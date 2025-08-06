@@ -48,6 +48,7 @@ public class LoadingScreen implements Screen {
         assetManager.load(BG_LEVEL_1_2, Texture.class);
         assetManager.load(BG_LEVEL_1_3, Texture.class);
         assetManager.load(BG_MAIN_MENU, Texture.class);
+        assetManager.load(BG_VICTORY, Texture.class);
         //Buttons
         assetManager.load(BTN_CONTINUE, Texture.class);
         assetManager.load(BTN_CONTINUE_HOVER, Texture.class);
@@ -70,6 +71,13 @@ public class LoadingScreen implements Screen {
         //Bosses
         assetManager.load(LIFE_BAR_LOADING, Texture.class);
         assetManager.load(LIFE_BAR, Texture.class);
+        assetManager.load(ASMODEUS_SPAWN, Texture.class);
+        assetManager.load(ASMODEUS_IDLE, Texture.class);
+        assetManager.load(ASMODEUS_INVOQUE, Texture.class);
+        assetManager.load(ASMODEUS_TP_OUT, Texture.class);
+        assetManager.load(ASMODEUS_TP_IN, Texture.class);
+        assetManager.load(ASMODEUS_HALF_LIFE, Texture.class);
+        assetManager.load(ASMODEUS_DIE, Texture.class);
         //HUD
         assetManager.load(CHALICE_LIFE_0, Texture.class);
         assetManager.load(CHALICE_LIFE_1, Texture.class);
