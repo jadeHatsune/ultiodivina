@@ -8,7 +8,6 @@ import classes.platforms.PlatformAerial;
 import classes.platforms.PlatformGround;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Texture;
-import com.hod.ultiodivina.Main;
 import screens.VictoryScreen;
 import screens.levels.BaseLevel;
 
@@ -39,6 +38,7 @@ public class Level_1_2_Screen extends BaseLevel {
         setupLevelPlatforms();
         setupLevelEnemies();
         setupPlayer();
+        this.showHud = true;
     }
 
     @Override

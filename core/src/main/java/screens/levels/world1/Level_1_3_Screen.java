@@ -2,13 +2,16 @@ package screens.levels.world1;
 
 import classes.Inputs.InputHandler;
 import classes.enemies.EnemyFacing;
+import classes.enemies.bosses.asmodeus.Asmodeus;
 import classes.enemies.flyingmouth.FlyingMouth;
 import classes.enemies.slime.Slime;
 import classes.platforms.PlatformAerial;
 import classes.platforms.PlatformGround;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Texture;
+import screens.ThanksScreen;
 import screens.levels.BaseLevel;
+import screens.levels.GameState;
 
 import static classes.AssetDescriptors.*;
 
@@ -24,23 +27,31 @@ public class Level_1_3_Screen extends BaseLevel {
 
         //--- LEVEL CONFIGURATION ---
         this.levelWidth = 2400;
-        this.levelHeight = 1800;
+        this.levelHeight = 1500;
         this.spawnPointX = 64;
-        this.spawnPointY = PLATFORM_HEIGHT;
+        this.spawnPointY = PLATFORM_HEIGHT - 15;
         this.backgroundTexture = assetManager.get(BG_LEVEL_1_3);
         this.backgroundMusic = assetManager.get(BOSS1_SONG);
         this.backgroundMusic.setLooping(true);
         this.backgroundMusic.setVolume(0.5f);
-        this.backgroundMusic.play();
 
         setupLevelPlatforms();
         setupLevelEnemies();
         setupPlayer();
+
+        this.currentState = GameState.CINEMATIC;
+        this.cinematicState = CinematicState.MOVING_TO_BOSS;
+        this.cinematicTimer = 0f;
+        this.showHud = false;
+
     }
 
     @Override
     public void render(float delta){
         super.render(delta);
+        if(enemies.isEmpty()){
+            game.setScreen(new ThanksScreen(game));
+        }
     }
 
     @Override
@@ -126,6 +137,17 @@ public class Level_1_3_Screen extends BaseLevel {
             getAnimationSprite(1, 4, assetManager.get(FLYING_MOUTH_MOVING, Texture.class)),
             getAnimationSprite(1, 12, assetManager.get(FLYING_MOUTH_ATTACKING, Texture.class)),
             getAnimationSprite(1, 4, assetManager.get(FLYING_MOUTH_PROJECTILE, Texture.class))));
+
+        boss = new Asmodeus((int) (levelWidth / 2 - (float) 432 / 2), (int) platforms.get(22).getBounds().getY() + PLATFORM_HEIGHT - 15,
+            getAnimationSprite(8, 8, assetManager.get(ASMODEUS_SPAWN, Texture.class)),
+            getAnimationSprite(1, 8, assetManager.get(ASMODEUS_IDLE, Texture.class)),
+            getAnimationSprite(1, 29, assetManager.get(ASMODEUS_INVOKE, Texture.class)),
+            getAnimationSprite(1, 8, assetManager.get(ASMODEUS_HALF_LIFE, Texture.class)),
+            getAnimationSprite(1, 14, assetManager.get(ASMODEUS_TP_OUT, Texture.class)),
+            getAnimationSprite(1, 14, assetManager.get(ASMODEUS_TP_IN, Texture.class)),
+            getAnimationSprite(1, 30, assetManager.get(ASMODEUS_DIE, Texture.class)));
+
+        enemies.add(boss);
     }
 
     @Override

@@ -2,7 +2,6 @@ package classes.player;
 
 import classes.platforms.Platform;
 import classes.projectiles.player_projectiles.ProjectileBase;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -115,6 +114,8 @@ public class Player {
 
     public int getScore() { return this.score; }
 
+    public PlayerFacing getPlayerFacing(){ return this.currentFacing; }
+
     //--- MOVEMENT ---
     public void moveX(float delta, Array<Platform> platforms, float worldWidth) {
         if (currentState == PlayerState.DIE) {
@@ -199,6 +200,18 @@ public class Player {
         }
     }
 
+    private void attacking(){
+        if(animationAttack.isAnimationFinished(stateTime)) {
+            transitionToState(PlayerState.IDLE);
+        } else {
+            int spawnFrame = 5;
+            if(!projectileSpawnedInThisAttack && animationAttack.getKeyFrameIndex(stateTime) >= spawnFrame) {
+                shouldSpawnProjectile = true;
+                projectileSpawnedInThisAttack = true;
+            }
+        }
+    }
+
     public ProjectileBase setProjectile(){
         float projectileSpeed = 500f;
         float startX = this.currentFacing == PlayerFacing.FACING_RIGHT ? this.bounds.x + this.bounds.width : this.bounds.x;
@@ -244,15 +257,7 @@ public class Player {
 
         if(life > 0) {
             if(currentState == PlayerState.ATTACKING) {
-                if(animationAttack.isAnimationFinished(stateTime)) {
-                    transitionToState(PlayerState.IDLE);
-                } else {
-                    int spawnFrame = 5;
-                    if(!projectileSpawnedInThisAttack && animationAttack.getKeyFrameIndex(stateTime) >= spawnFrame) {
-                        shouldSpawnProjectile = true;
-                        projectileSpawnedInThisAttack = true;
-                    }
-                }
+                attacking();
             } else if (!isOnGround) {
                 if(speedY > 0) {
                     transitionToState(PlayerState.JUMPING);

@@ -3,10 +3,15 @@ package screens.levels;
 import classes.Inputs.InputHandler;
 import classes.enemies.Enemy;
 import classes.effects.FloatingScore;
+import classes.enemies.EnemyFacing;
 import classes.enemies.EnemyState;
+import classes.enemies.bosses.Boss;
+import classes.enemies.bosses.asmodeus.Asmodeus;
 import classes.enemies.flyingmouth.FlyingMouth;
+import classes.enemies.tentacle.Tentacle;
 import classes.platforms.Platform;
 import classes.player.Player;
+import classes.player.PlayerFacing;
 import classes.projectiles.Projectile;
 import classes.projectiles.ProjectileState;
 import com.badlogic.gdx.Game;
@@ -22,6 +27,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
@@ -45,6 +51,15 @@ import static classes.AssetDescriptors.*;
 
 public abstract class BaseLevel extends BaseScreen {
 
+    protected enum CinematicState {
+        MOVING_TO_BOSS,
+        BOSS_ANIMATION,
+        MOVING_TO_PLAYER,
+        BOSS_DEATH,
+        BOSS_DEATH_ANIMATION,
+        FINISHED
+    }
+
     //-- Constants --
     protected static final int PLATFORM_HEIGHT = 64;
     protected static final int AERIAL_LONG_PLATFORM_WIDTH = 300;
@@ -63,6 +78,9 @@ public abstract class BaseLevel extends BaseScreen {
     protected float levelWidth;
     protected float levelHeight;
     protected float parallaxFactor = 0.5f;
+    protected CinematicState cinematicState;
+    protected float cinematicTimer;
+    protected boolean showHud;
 
     //--- Pause UI ---
     protected Table pauseTable;
@@ -80,6 +98,7 @@ public abstract class BaseLevel extends BaseScreen {
     protected Array<Projectile> enemiesProjectiles;
     protected Array<Enemy> enemies;
     protected Array<FloatingScore> floatingScores;
+    protected Boss boss;
 
     //--- Platforms ---
     protected Array<Platform> platforms;
@@ -88,7 +107,10 @@ public abstract class BaseLevel extends BaseScreen {
     protected OrthographicCamera hudCamera;
     protected Array<Texture> lifeSprites;
     protected Animation<TextureRegion> animationLifeEnds;
+    protected Animation<TextureRegion> animationLifeBarIn;
+    protected Array<TextureRegion> lifeBarSections;
     protected float hudAnimationStateTime = 0f;
+    protected float hudLifeBarAnimationStateTime = 0f;
     protected InputHandler inputHandler;
     protected final GlyphLayout glyphLayout = new GlyphLayout();
     protected int displayScore;
@@ -122,6 +144,15 @@ public abstract class BaseLevel extends BaseScreen {
         this.hudCamera.setToOrtho(false, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
         this.displayScore = 0;
         this.animationLifeEnds = getAnimationSprite(1, 10, assetManager.get(CHALICE_LIFE_0, Texture.class));
+        this.animationLifeBarIn = getAnimationSprite(1, 43, assetManager.get(LIFE_BAR_LOADING, Texture.class));
+
+        Texture lifeBarSheet = assetManager.get(LIFE_BAR, Texture.class);
+        TextureRegion[][] tmp = TextureRegion.split(lifeBarSheet,
+            lifeBarSheet.getWidth() / 11,
+            lifeBarSheet.getHeight());
+
+        lifeBarSections = new Array<>(tmp[0]);
+
         this.lifeSprites.add(assetManager.get(CHALICE_LIFE_1, Texture.class));
         this.lifeSprites.add(assetManager.get(CHALICE_LIFE_2, Texture.class));
         this. lifeSprites.add(assetManager.get(CHALICE_LIFE_3, Texture.class));
@@ -147,7 +178,15 @@ public abstract class BaseLevel extends BaseScreen {
 
         gamepadMenuController.wantsToPause();
 
-        if(currentState == GameState.PAUSED){
+        if(currentState == GameState.RUNNING) {
+            Gdx.input.setCursorCatched(true);
+            updateEntities(delta);
+            camera.position.x = player.getBounds().x;
+            camera.position.y = player.getBounds().y;
+            backgroundMusic.setVolume(0.5f);
+        } else if(currentState == GameState.CINEMATIC){
+            updateCinematic(delta);
+        } else if(currentState == GameState.PAUSED){
             backgroundMusic.setVolume(0.2f);
             if(Controllers.getControllers().size > 0) {
                 gamepadMenuController.update();
@@ -156,24 +195,13 @@ public abstract class BaseLevel extends BaseScreen {
                 Gdx.input.setCursorCatched(false);
                 resetButtonStyles();
             }
-        } else {
-            backgroundMusic.setVolume(0.5f);
         }
 
-        if(currentState == GameState.RUNNING) {
-            Gdx.input.setCursorCatched(true);
-            updateEntities(delta);
-        }
-
-        camera.position.x = player.getBounds().x;
         camera.position.x = MathUtils.clamp(camera.position.x, (float) VIRTUAL_WIDTH / 2, levelWidth - ((float) VIRTUAL_WIDTH / 2));
-
-        camera.position.y = player.getBounds().y;
         camera.position.y = MathUtils.clamp(camera.position.y, (float) VIRTUAL_HEIGHT / 2, levelHeight - ((float) VIRTUAL_HEIGHT / 2));
 
         //--- Dibujado de juego ---
         batch.begin();
-
         float backgroundX = (camera.position.x - VIRTUAL_WIDTH / 2f) * parallaxFactor;
         float backgroundY = (camera.position.y - VIRTUAL_HEIGHT / 2f) * parallaxFactor;
 
@@ -184,7 +212,9 @@ public abstract class BaseLevel extends BaseScreen {
 
         //--- Dibujado de HUD ---
         uiViewport.apply();
-        drawHUD(batch, delta);
+        if(showHud) {
+            drawHUD(batch, delta);
+        }
         batch.end();
 
         stage.act(delta);
@@ -210,7 +240,13 @@ public abstract class BaseLevel extends BaseScreen {
 
     public void handleCollisions() {
         for(Enemy enemy : enemies) {
-            if(player.getBounds().overlaps(enemy.getBounds())) {
+            if (enemy instanceof Tentacle) {
+                Tentacle tentacle = (Tentacle) enemy;
+                if (tentacle.isAttackActive() && tentacle.getAttackBounds().overlaps(player.getBounds())) {
+                    player.takeDamage(tentacle.makeDamage());
+                }
+            }
+            else if (player.getBounds().overlaps(enemy.getBounds())) {
                 player.takeDamage(enemy.makeDamage());
             }
         }
@@ -251,10 +287,12 @@ public abstract class BaseLevel extends BaseScreen {
         for (Iterator<Enemy> iter = enemies.iterator(); iter.hasNext(); ) {
             Enemy enemy = iter.next();
             if (enemy.getCurrentState() == EnemyState.DIE) {
-                player.setScore(enemy.getGivenScore());
-                String scoreText = "+" + enemy.getGivenScore();
-                floatingScores.add(new FloatingScore(scoreText, enemy.getBounds().x, enemy.getBounds().y + enemy.getBounds().height));
-                iter.remove();
+                if (enemy.isDieAnimationFinished()) {
+                    player.setScore(enemy.getGivenScore());
+                    String scoreText = "+" + enemy.getGivenScore();
+                    floatingScores.add(new FloatingScore(scoreText, enemy.getBounds().x, enemy.getBounds().y + enemy.getBounds().height));
+                    iter.remove();
+                }
             }
         }
     }
@@ -274,8 +312,10 @@ public abstract class BaseLevel extends BaseScreen {
             projectile.update(delta);
         }
 
+        Array<Enemy> spawnedEnemies = new Array<>();
+
         for(Enemy enemy : enemies) {
-            enemy.update(delta, platforms, levelWidth);
+            enemy.update(delta, platforms, levelWidth, levelHeight);
             if(enemy instanceof FlyingMouth){
                 FlyingMouth flyingMouth = (FlyingMouth) enemy;
                 if(flyingMouth.shouldSpawnProjectile()){
@@ -283,7 +323,29 @@ public abstract class BaseLevel extends BaseScreen {
                     enemiesProjectiles.add(flyingMouth.setProjectile());
                 }
             }
+
+            if(enemy instanceof Asmodeus){
+                Asmodeus asmodeus = (Asmodeus) enemy;
+                if(asmodeus.shouldSpawnProjectile()){
+                    EnemyFacing facing;
+                    int position;
+                    if(player.getPlayerFacing() == PlayerFacing.FACING_LEFT){
+                        facing = EnemyFacing.FACING_LEFT;
+                        position = 64;
+                    }else{
+                        facing = EnemyFacing.FACING_RIGHT;
+                        position = -64;
+                    }
+
+                    spawnedEnemies.add(new Tentacle((int) player.getBounds().x + position, (int) player.getBounds().y, facing,
+                        getAnimationSprite(1, 7, assetManager.get(TENTACLE_SPAWN, Texture.class)),
+                        getAnimationSprite(1, 11, assetManager.get(TENTACLE_IDLE, Texture.class)),
+                        getAnimationSprite(1, 18, assetManager.get(TENTACLE_ATTACK, Texture.class))));
+                }
+            }
         }
+
+        enemies.addAll(spawnedEnemies);
 
         for(Projectile projectile : enemiesProjectiles){
             projectile.update(delta);
@@ -303,6 +365,15 @@ public abstract class BaseLevel extends BaseScreen {
 
         handleCollisions();
         cleanupEntities();
+
+        if (enemies.contains(boss, true) && boss.getCurrentState() == EnemyState.DIE && this.currentState != GameState.CINEMATIC) {
+            backgroundMusic.stop();
+            this.currentState = GameState.CINEMATIC;
+            this.cinematicState = CinematicState.BOSS_DEATH;
+            this.cinematicTimer = 0f;
+            this.showHud = false;
+        }
+
     }
 
     public void drawEntities(Batch batch) {
@@ -341,6 +412,92 @@ public abstract class BaseLevel extends BaseScreen {
         float textX = (VIRTUAL_WIDTH - glyphLayout.width) / 2;
         float textY = (VIRTUAL_HEIGHT) * 0.95f;
         font.draw(batch, glyphLayout, textX, textY);
+
+        if(enemies.contains(boss, true)){
+            float barX = VIRTUAL_WIDTH - 150;
+            float barY = VIRTUAL_HEIGHT - 64;
+            if(!animationLifeBarIn.isAnimationFinished(hudLifeBarAnimationStateTime)){
+                hudLifeBarAnimationStateTime += delta;
+                TextureRegion currentFrame = animationLifeBarIn.getKeyFrame(hudLifeBarAnimationStateTime, false);
+                batch.draw(currentFrame, barX, barY);
+            } else {
+                int totalLife = boss.getLife();
+                float healthRatio = (float) boss.getCurrentLife() / totalLife;
+
+                int totalFrames = 11;
+                int frameIndex = (totalFrames - 1) - (int)Math.ceil(healthRatio * (totalFrames - 1));
+
+                if (boss.getCurrentLife() == 0) {
+                    frameIndex = totalFrames - 1;
+                } else if (frameIndex < 0) {
+                    frameIndex = 0;
+                }
+
+                TextureRegion currentFrame = lifeBarSections.get(frameIndex);
+                batch.draw(currentFrame, barX, barY);
+            }
+        }
+
+    }
+
+    protected void updateCinematic(float delta) {
+        cinematicTimer += delta;
+
+        float playerX = player.getBounds().x;
+        float playerY = player.getBounds().y;
+        float bossX = boss.getBounds().x + boss.getBounds().width / 2;
+        float bossY = boss.getBounds().y + boss.getBounds().height / 2;
+
+        float timeToMove = 2.0f;
+
+        float progress;
+
+        switch(cinematicState){
+            case MOVING_TO_BOSS:
+                progress = Math.min(1f, cinematicTimer / timeToMove);
+                camera.position.x = Interpolation.sine.apply(playerX, bossX, progress);
+                camera.position.y = Interpolation.sine.apply(playerY, bossY, progress);
+                if(progress >= 1f){
+                    cinematicState = CinematicState.BOSS_ANIMATION;
+                    cinematicTimer = 0f;
+                }
+                break;
+            case BOSS_ANIMATION:
+                boss.update(delta, platforms, levelWidth, levelHeight);
+                if(boss.isIntroAnimationFinished()){
+                    cinematicState = CinematicState.MOVING_TO_PLAYER;
+                    cinematicTimer = 0f;
+                }
+                break;
+            case BOSS_DEATH:
+                progress = Math.min(1f, cinematicTimer / timeToMove);
+                camera.position.x = Interpolation.sine.apply(playerX, bossX, progress);
+                camera.position.y = Interpolation.sine.apply(playerY, bossY, progress);
+                if(progress >= 1f){
+                    cinematicState = CinematicState.BOSS_DEATH_ANIMATION;
+                    cinematicTimer = 0f;
+                }
+                break;
+            case BOSS_DEATH_ANIMATION:
+                boss.update(delta, platforms, levelWidth, levelHeight);
+                if(boss.isDieAnimationFinished()){
+                    cinematicState = CinematicState.MOVING_TO_PLAYER;
+                    cinematicTimer = 0f;
+                }
+                break;
+            case MOVING_TO_PLAYER:
+                progress = Math.min(1f, cinematicTimer / timeToMove);
+                camera.position.x = Interpolation.sine.apply(bossX, playerX, progress);
+                camera.position.y = Interpolation.sine.apply(bossY, playerY, progress);
+                if(progress >= 1f) {
+                    cinematicState = CinematicState.FINISHED;
+                    currentState = GameState.RUNNING;
+                    showHud = true;
+                    backgroundMusic.play();
+                }
+                break;
+        }
+
     }
 
     public void createPauseTable() {

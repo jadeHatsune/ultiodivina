@@ -5,13 +5,11 @@ import classes.enemies.EnemyFacing;
 import classes.enemies.EnemyState;
 import classes.platforms.Platform;
 import classes.projectiles.enemies_projectiles.ProjectileFlyingMouth;
-import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
-import com.hod.ultiodivina.Main;
 
 public class FlyingMouth extends Enemy {
 
@@ -56,7 +54,7 @@ public class FlyingMouth extends Enemy {
     }
 
     @Override
-    public void moveY(float delta, Array<Platform> platforms) { }
+    public void moveY(float delta, Array<Platform> platforms, float worldHeight) { }
 
     @Override
     public void processMovement() {
@@ -88,6 +86,21 @@ public class FlyingMouth extends Enemy {
             projectileSpawnedInThisAttack = false;
         }
     }
+
+    @Override
+    protected void attacking(){
+        if(animationAttack.isAnimationFinished(stateTime)) {
+            transitionToState(EnemyState.IDLE);
+        } else {
+            if(!projectileSpawnedInThisAttack && animationAttack.getKeyFrameIndex(stateTime) >= attackSpawnFrame) {
+                shouldSpawnProjectile = true;
+                projectileSpawnedInThisAttack = true;
+            }
+        }
+    }
+
+    @Override
+    protected void specialAttack() { }
 
     public ProjectileFlyingMouth setProjectile() {
         float projectileSpeed = 500f;

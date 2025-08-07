@@ -1,6 +1,5 @@
 package screens;
 
-import classes.Inputs.GamepadMenuController;
 import classes.player.Player;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -18,9 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.hod.ultiodivina.Main;
-import java.util.ArrayList;
 import screens.levels.world1.Level_1_1_Screen;
-import screens.levels.world1.Level_1_3_Screen;
 
 import static classes.AssetDescriptors.*;
 
@@ -132,8 +129,7 @@ public class MainMenuScreen extends BaseScreen {
                 SequenceAction sequenceAction = new SequenceAction();
                 sequenceAction.addAction(Actions.delay(0.3f));
                 sequenceAction.addAction(Actions.run(() -> {
-                    //game.setScreen(new Level_1_1_Screen(game));
-                    game.setScreen(new Level_1_3_Screen(game));
+                    game.setScreen(new Level_1_1_Screen(game));
                     dispose();
                 }));
                 stage.addAction(sequenceAction);
@@ -152,9 +148,7 @@ public class MainMenuScreen extends BaseScreen {
                 buttonSound.play(0.5f);
                 SequenceAction sequenceAction = new SequenceAction();
                 sequenceAction.addAction(Actions.delay(0.3f));
-                sequenceAction.addAction(Actions.run(() -> {
-                    Gdx.app.exit();
-                }));
+                sequenceAction.addAction(Actions.run(() -> Gdx.app.exit()));
                 stage.addAction(sequenceAction);
             }
         });

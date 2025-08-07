@@ -39,10 +39,9 @@ public class Slime extends Enemy {
 
     @Override
     public void moveX(float delta, Array<Platform> platforms, float worldWidth) {
-        // --- LÓGICA DE SENSOR DE BORDES ---
         if (speedX != 0) {
             int sensorX = (int) (speedX > 0 ? bounds.x + bounds.width : bounds.x - 1);
-            int sensorY = (int) (bounds.y - 1); // Un píxel por debajo de sus pies
+            int sensorY = (int) (bounds.y - 1);
             Point sensor = new Point(sensorX, sensorY);
 
             boolean groundAhead = false;
@@ -52,7 +51,6 @@ public class Slime extends Enemy {
                     break;
                 }
             }
-            // Si no hay suelo delante, invierte la dirección
             if (!groundAhead) {
                 speedX *= -1;
                 currentFacing = (currentFacing == EnemyFacing.FACING_LEFT) ? EnemyFacing.FACING_RIGHT : EnemyFacing.FACING_LEFT;
@@ -74,7 +72,7 @@ public class Slime extends Enemy {
     }
 
     @Override
-    public void moveY(float delta, Array<Platform> platforms) {
+    public void moveY(float delta, Array<Platform> platforms, float worldHeight) {
         bounds.y += speedY * delta;
 
 
@@ -114,6 +112,14 @@ public class Slime extends Enemy {
 
     @Override
     public void attack() { }
+
+    @Override
+    protected void attacking() { }
+
+    @Override
+    protected void specialAttack() {
+
+    }
 
     @Override
     public void draw(Batch batch) {

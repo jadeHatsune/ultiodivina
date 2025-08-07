@@ -3,54 +3,50 @@ package screens;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.controllers.Controllers;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.ScreenUtils;
-import screens.levels.world1.Level_1_1_Screen;
 
 import static classes.AssetDescriptors.*;
+import static classes.AssetDescriptors.BTN_BACK;
+import static classes.AssetDescriptors.BTN_BACK_HOVER;
 
-public class GameOverScreen extends BaseScreen {
+public class ThanksScreen extends BaseScreen {
 
     private Texture background;
 
-    private Button btnRestart, btnReturn;
+    private Button btnReturn;
 
-    private TextureRegionDrawable restartUp, restartOver;
     private TextureRegionDrawable returnUp, returnOver;
 
-    public GameOverScreen(Game game) {
+    public ThanksScreen(Game game) {
         super(game);
     }
 
     @Override
-    public void show(){
+    public void show() {
         super.show();
 
-        this.background = assetManager.get(BG_GAME_OVER, Texture.class);
+        this.background = assetManager.get(BG_THANKS, Texture.class);
         this.backgroundMusic = assetManager.get(GAME_OVER_SONG, Music.class);
         this.backgroundMusic.setLooping(true);
         this.backgroundMusic.setVolume(0.5f);
         this.backgroundMusic.play();
 
-        this.restartUp = new TextureRegionDrawable(assetManager.get(BTN_RESTART, Texture.class));
-        this.restartOver = new TextureRegionDrawable(assetManager.get(BTN_RESTART_HOVER, Texture.class));
         this.returnUp = new TextureRegionDrawable(assetManager.get(BTN_BACK, Texture.class));
         this.returnOver = new TextureRegionDrawable(assetManager.get(BTN_BACK_HOVER, Texture.class));
 
-        createGameOverTable();
+        createThanksTable();
     }
 
     @Override
-    public void render(float delta){
+    public void render(float delta) {
         super.render(delta);
 
         if(Controllers.getControllers().size > 0) {
@@ -82,51 +78,22 @@ public class GameOverScreen extends BaseScreen {
         super.hide();
     }
 
-    public void createGameOverTable() {
-        Table gameOverTable = new Table();
-        gameOverTable.setFillParent(true);
-
-        Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.WHITE);
-        Label gameOverLabel = new Label("Fin del juego", labelStyle);
-
-        Button.ButtonStyle restartStyle = new Button.ButtonStyle();
-        restartStyle.up = restartUp;
-        restartStyle.over = restartOver;
-        btnRestart = getRestartButton(restartStyle);
+    public void createThanksTable() {
+        Table thanksTable = new Table();
+        thanksTable.setFillParent(true);
 
         Button.ButtonStyle returnStyle = new Button.ButtonStyle();
         returnStyle.up = returnUp;
         returnStyle.over = returnOver;
         btnReturn = getReturnButton(returnStyle);
 
-        menuButtons.add(btnRestart);
         menuButtons.add(btnReturn);
 
-        gameOverTable.add(gameOverLabel).padBottom(40).row();
-        gameOverTable.add(btnRestart).padBottom(10).row();
-        gameOverTable.add(btnReturn).padBottom(10).row();
+        thanksTable.add(btnReturn).padBottom(10).padTop(240).row();
 
-        gameOverTable.setVisible(true);
+        thanksTable.setVisible(true);
 
-        stage.addActor(gameOverTable);
-    }
-
-    public Button getRestartButton(Button.ButtonStyle restartStyle){
-        Button restartButton = new Button(restartStyle);
-        restartButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent changeEvent, Actor actor) {
-                buttonSound.play(0.5f);
-                SequenceAction sequenceAction = new SequenceAction();
-                sequenceAction.addAction(Actions.delay(0.3f));
-                sequenceAction.addAction(Actions.run(() ->
-                    game.setScreen(new Level_1_1_Screen(game))));
-
-                stage.addAction(sequenceAction);
-            }
-        });
-
-        return restartButton;
+        stage.addActor(thanksTable);
     }
 
     private Button getReturnButton(Button.ButtonStyle returnStyle) {
@@ -149,12 +116,6 @@ public class GameOverScreen extends BaseScreen {
         int selectedIndex = gamepadMenuController.getSelectedIndex();
 
         if(selectedIndex == 0) {
-            btnRestart.getStyle().up = restartOver;
-        } else {
-            btnRestart.getStyle().up = restartUp;
-        }
-
-        if(selectedIndex == 1) {
             btnReturn.getStyle().up = returnOver;
         } else {
             btnReturn.getStyle().up = returnUp;
@@ -163,8 +124,6 @@ public class GameOverScreen extends BaseScreen {
     }
 
     private void resetButtonStyles(){
-        btnRestart.getStyle().up = restartUp;
         btnReturn.getStyle().up = returnUp;
     }
-
 }

@@ -10,6 +10,8 @@ public final class AssetDescriptors {
     public static final String BG_LEVEL_1_3 = "backgrounds/level1/nivel1-3.png";
     public static final String BG_MAIN_MENU = "backgrounds/mainMenuBackground.png";
     public static final String BG_VICTORY = "backgrounds/PANTALLA-VICTORY.png";
+    public static final String BG_GAME_OVER = "backgrounds/PANTALLA-GAME_OVER.png";
+    public static final String BG_THANKS = "backgrounds/PANTALLA-MUSHAGRACIA.png";
 
     //--- BUTTONS ---
     public static final String BTN_CONTINUE = "buttons/botonContinuar.png";
@@ -37,7 +39,7 @@ public final class AssetDescriptors {
     public static final String LIFE_BAR = "enemies/bosses/bossLifeBarSheet.png";
     public static final String ASMODEUS_SPAWN = "enemies/bosses/asmodeus/asmodeus_spawn_sheet.png";
     public static final String ASMODEUS_IDLE = "enemies/bosses/asmodeus/asmodeus_reposo_sheet.png";
-    public static final String ASMODEUS_INVOQUE = "enemies/bosses/asmodeus/asmodeus_invocandoTentaculos_sheet.png";
+    public static final String ASMODEUS_INVOKE = "enemies/bosses/asmodeus/asmodeus_invocandoTentaculos_sheet.png";
     public static final String ASMODEUS_TP_OUT = "enemies/bosses/asmodeus/asmodeus-Desaparicion-Sheet.png";
     public static final String ASMODEUS_TP_IN = "enemies/bosses/asmodeus/asmodeus-Aparicion-Sheet.png";
     public static final String ASMODEUS_HALF_LIFE = "enemies/bosses/asmodeus/asmodeus-MitadDeVida-Sheet.png";

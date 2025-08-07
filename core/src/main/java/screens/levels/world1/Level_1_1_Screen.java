@@ -41,6 +41,8 @@ public class Level_1_1_Screen extends BaseLevel {
         setupLevelPlatforms();
         setupLevelEnemies();
         setupPlayer();
+
+        this.showHud = true;
     }
 
     @Override
@@ -72,7 +74,7 @@ public class Level_1_1_Screen extends BaseLevel {
         platforms.add(new PlatformAerial(0, (int) currentY, assetManager.get(PLATFORM_AERO_LEFT, Texture.class)));
         platforms.add(new PlatformAerial((int) (levelWidth - AERIAL_PLATFORM_WIDTH), (int) currentY, assetManager.get(PLATFORM_AERO_RIGHT, Texture.class)));
         currentY += VERTICAL_SPACING;
-        platforms.add(new PlatformAerial((int) ((levelWidth / 2) - (AERIAL_LONG_PLATFORM_WIDTH / 2)), (int) currentY, assetManager.get(PLATFORM_AERO_LARGE, Texture.class)));
+        platforms.add(new PlatformAerial((int) ((levelWidth / 2) - ((float) AERIAL_LONG_PLATFORM_WIDTH / 2)), (int) currentY, assetManager.get(PLATFORM_AERO_LARGE, Texture.class)));
 
     }
 
