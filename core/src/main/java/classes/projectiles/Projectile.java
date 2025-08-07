@@ -1,13 +1,10 @@
 package classes.projectiles;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
-import com.hod.ultiodivina.Main;
+
 
 public abstract class Projectile {
 
@@ -66,22 +63,6 @@ public abstract class Projectile {
         }
 
         batch.draw(currentFrame, bounds.x, bounds.y, bounds.width, bounds.height);
-    }
-
-    public Animation<TextureRegion> getAnimationSprite(int frameCols, int frameRows, Texture spriteSheet) {
-        int frameWidth = spriteSheet.getWidth() / frameCols;
-        int frameHeight = spriteSheet.getHeight() / frameRows;
-
-        TextureRegion[][] tmp = TextureRegion.split(spriteSheet, frameWidth, frameHeight);
-        TextureRegion[] keyFrames = new TextureRegion[frameCols * frameRows];
-        int index = 0;
-        for (int i = 0; i < frameRows; i++) {
-            for (int j = 0; j < frameCols; j++) {
-                keyFrames[index++] = tmp[i][j];
-            }
-        }
-
-        return new Animation<>(0.1f, keyFrames);
     }
 
 }
